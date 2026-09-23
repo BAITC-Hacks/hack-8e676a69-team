@@ -52,13 +52,26 @@ const selectedTurbine = computed(() =>
 const selectedTurbineName = computed(() =>
   selectedTurbine.value ? localized(selectedTurbine.value.name, language.value) : '',
 )
+const startDateMin = computed(() =>
+  toDateInputValue(
+    selectedTurbine.value?.datasetStart ??
+      visibleTurbines.value
+        .map((turbine) => turbine.datasetStart)
+        .filter(Boolean)
+        .sort()[0],
+  ),
+)
 const canConfirmForecast = computed(() =>
-  bootstrapStatus.value === 'ready' && Boolean(selectedTurbine.value) && Boolean(startDate.value),
+  bootstrapStatus.value === 'ready' &&
+  Boolean(selectedTurbine.value) &&
+  Boolean(startDate.value) &&
+  isDateInAllowedRange(startDate.value),
 )
 
 function selectTurbine(turbineId) {
   selectedHistoryTicketId.value = ''
   selectedTurbineId.value = turbineId
+  normalizeStartDate()
 }
 
 function clearPolling() {
@@ -110,6 +123,36 @@ function upsertRequestHistory(ticketId, patch) {
   persistRequestHistory()
 }
 
+function toDateInputValue(value) {
+  if (!value) return ''
+
+  return String(value).slice(0, 10)
+}
+
+function isDateInAllowedRange(value) {
+  const date = toDateInputValue(value)
+  const min = startDateMin.value
+
+  return Boolean(date) && (!min || date >= min)
+}
+
+function normalizeStartDate() {
+  const date = toDateInputValue(startDate.value)
+  const min = startDateMin.value
+
+  if (!date) {
+    startDate.value = ''
+    return
+  }
+
+  startDate.value = min && date < min ? min : date
+}
+
+function updateStartDate(value) {
+  startDate.value = toDateInputValue(value)
+  normalizeStartDate()
+}
+
 async function selectHistoryTicket(ticketId) {
   const entry = requestHistory.value.find((item) => item.ticketId === ticketId)
 
@@ -137,7 +180,7 @@ async function selectHistoryTicket(ticketId) {
     selectedTurbineId.value = turbine.id
   }
 
-  if (entry.horizonStart) startDate.value = entry.horizonStart
+  if (entry.horizonStart) updateStartDate(entry.horizonStart)
   if (entry.historyDays) historyDays.value = entry.historyDays
 
   if (entry.status === 'done' && entry.response && turbine) {
@@ -319,7 +362,11 @@ watch(selectedWindFarmId, () => {
   if (selectedTurbineId.value && !visibleTurbines.value.some((turbine) => turbine.id === selectedTurbineId.value)) {
     selectedTurbineId.value = ''
   }
+
+  normalizeStartDate()
 })
+
+watch(selectedTurbineId, normalizeStartDate)
 
 watch([selectedTurbineId, startDate], scheduleForecast)
 
@@ -336,13 +383,14 @@ onBeforeUnmount(() => {
     <AppSidebar
       v-model:language="language"
       v-model:selected-wind-farm-id="selectedWindFarmId"
-      v-model:start-date="startDate"
       :bootstrap-error="bootstrapError"
       :bootstrap-status="bootstrapStatus"
       :forecast-error="forecastError"
       :forecast-status="forecastStatus"
       :request-history="requestHistory"
       :selected-history-ticket-id="selectedHistoryTicketId"
+      :start-date="startDate"
+      :start-date-min="startDateMin"
       :t="t"
       :ticket-id="currentTicket?.ticket_id"
       :visible-turbines="visibleTurbines"
@@ -350,18 +398,22 @@ onBeforeUnmount(() => {
       @retry-bootstrap="loadBootstrap"
       @select-history="selectHistoryTicket"
       @select-turbine="selectTurbine"
+      @update:start-date="updateStartDate"
     />
 
     <WindMap
       v-if="selectedWindFarm && selectedTurbine"
-      v-model:start-date="startDate"
-      v-model:selected-turbine-id="selectedTurbineId"
       :bootstrap-status="bootstrapStatus"
       :language="language"
       :selected-turbine="selectedTurbine"
+      :selected-turbine-id="selectedTurbineId"
       :selected-wind-farm="selectedWindFarm"
+      :start-date="startDate"
+      :start-date-min="startDateMin"
       :t="t"
       :visible-turbines="visibleTurbines"
+      @update:selected-turbine-id="selectTurbine"
+      @update:start-date="updateStartDate"
     />
     <section v-else class="map-placeholder">
       <span>
