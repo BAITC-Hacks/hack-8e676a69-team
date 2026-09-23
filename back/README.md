@@ -44,7 +44,7 @@ Copy .env.example to .env in this folder. All relative configuration paths resol
 
 ML_STEP must be a positive divisor of 60: 1 means hourly, 3 every 20 minutes, 6 every 10 minutes, and 12 every 5 minutes. Set it in back/.env and restart backend when the ML teammate changes their input requirements. Frontend neither sends nor selects it.
 
-Place the two supplied CSVs under data/, with filenames ending in turbine 1.csv and turbine 2.csv. CSVs are ignored by Git; copy them separately when deploying. An absolute DATASETS_DIR may point to another dataset location.
+The two supplied source CSVs are included under data/, with filenames ending in turbine 1.csv and turbine 2.csv. They are available in a fresh clone. An absolute DATASETS_DIR may point to another dataset location.
 
 ## Frontend HTTP contract
 
@@ -146,7 +146,7 @@ With the backend virtual environment active, from the repository root:
 
 ```sh
 python -m pip install -r back/requirements-dev.txt
-python -m pytest -c back/pytest.ini -q
+python -m pytest -c back/pytest.ini back/tests -q
 ```
 
 Tests cover server-controlled sampling, rejection of frontend overrides, bootstrap defaults, exact windows, weather-only input, interpolation, cutoff selection, polling, atomic publication, JSON passthrough, timeouts, recovery, and cleanup.

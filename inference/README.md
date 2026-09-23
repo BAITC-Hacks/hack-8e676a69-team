@@ -10,7 +10,7 @@ The worker performs no training, NVIDIA calls, or weather downloads.
 From the repository root:
 
 ```bash
-source ./venv/bin/activate
+source back/.venv/bin/activate
 python -m pip install -r back/requirements.txt
 python -m uvicorn back.main:app --host 127.0.0.1 --port 8000
 ```
@@ -21,8 +21,8 @@ Add `--env-file back/.env` if configured. The existing `back/run.sh` and
 No second terminal/process is required. The frontend endpoints and POST schema
 are unchanged: create a ticket, then poll until HTTP 200.
 
-Before testing, place both original turbine CSVs in `back/data/` (filenames ending
-in `turbine 1.csv` and `turbine 2.csv`), or set `DATASETS_DIR` to their directory.
+Both original turbine CSVs are included in `back/data/` (filenames ending
+in `turbine 1.csv` and `turbine 2.csv`). Alternatively, set `DATASETS_DIR` to another data directory.
 Without those files, `/api/bootstrap` cannot load the turbine dataset catalog.
 Models are shipped here under `models/`; `problem/` is not a runtime dependency.
 Deploy the two `.cbm` files **and** `manifest.json`; SHA-256 is verified on startup.

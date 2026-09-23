@@ -5,7 +5,7 @@ worker automatically by default. The concrete success format is one `series`
 entry with id `agent-ctboost`, name `Main forecast`, color `#157a65`, and 48 points
 `{"hour":0..47,"value":normalized_power}`. Power is never a model input.
 
-The ML teammate implements the Python worker here. Backend and worker share root tickets/, alongside back/, frontend/, and ml/.
+The Python worker is implemented in inference/; this folder documents the shared interface. Backend and worker use the same root tickets/ directory.
 
 ## Input
 

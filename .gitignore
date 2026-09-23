@@ -7,7 +7,6 @@ node_modules/
 # Frontend build output stays untracked.
 frontend/dist/
 /data/
-back/data/*.csv
 *.db
 *.db-wal
 *.db-shm
