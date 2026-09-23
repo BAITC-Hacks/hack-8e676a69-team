@@ -38,10 +38,6 @@ const props = defineProps({
     type: String,
     required: true,
   },
-  startDateMin: {
-    type: String,
-    default: '',
-  },
   t: {
     type: Object,
     required: true,
@@ -154,9 +150,7 @@ function shortTicketId(ticketId) {
         <input
           :value="startDate"
           :disabled="bootstrapStatus !== 'ready'"
-          :min="startDateMin"
           type="date"
-          @change="emit('update:startDate', $event.target.value)"
           @input="emit('update:startDate', $event.target.value)"
         />
       </label>
