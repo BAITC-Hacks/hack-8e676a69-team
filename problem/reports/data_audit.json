@@ -1,0 +1,22 @@
+{
+  "1": {
+    "source": "Dataset HackAlemAI \u0434\u043b\u044f \u0443\u0447\u0430\u0441\u0442\u043d\u0438\u043a\u043e\u0432 11.03.2023-28.02.2026 - turbine 1.csv",
+    "raw_rows": 142360,
+    "first_measurement": "2023-03-11 00:00:00",
+    "last_measurement": "2026-01-31 23:50:00",
+    "hourly_slots": 25392,
+    "valid_hourly_power": 23728,
+    "hours_below_four_measurements": 1664,
+    "missing_10minute_slots": 9992
+  },
+  "2": {
+    "source": "Dataset HackAlemAI \u0434\u043b\u044f \u0443\u0447\u0430\u0441\u0442\u043d\u0438\u043a\u043e\u0432 11.03.2023-28.02.2026 - turbine 2.csv",
+    "raw_rows": 149499,
+    "first_measurement": "2023-03-11 00:00:00",
+    "last_measurement": "2026-01-31 23:50:00",
+    "hourly_slots": 25392,
+    "valid_hourly_power": 24919,
+    "hours_below_four_measurements": 473,
+    "missing_10minute_slots": 2853
+  }
+}

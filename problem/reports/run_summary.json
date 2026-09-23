@@ -1,0 +1,293 @@
+{
+  "elapsed_seconds": 61.21039283298887,
+  "arguments": {
+    "iterations": 800,
+    "threads": 4,
+    "stride": 6
+  },
+  "selection": {
+    "1": {
+      "catboost_iterations": 66,
+      "sarimax_order": [
+        1,
+        0,
+        0
+      ],
+      "validation_period": "2025-12-01 through 2025-12-31",
+      "sarimax_candidates": [
+        {
+          "order": [
+            1,
+            0,
+            0
+          ],
+          "rmse": 0.3711504086384508,
+          "converged": true
+        },
+        {
+          "order": [
+            2,
+            0,
+            1
+          ],
+          "rmse": 0.37139009410855944,
+          "converged": true
+        }
+      ]
+    },
+    "2": {
+      "catboost_iterations": 85,
+      "sarimax_order": [
+        1,
+        0,
+        0
+      ],
+      "validation_period": "2025-12-01 through 2025-12-31",
+      "sarimax_candidates": [
+        {
+          "order": [
+            1,
+            0,
+            0
+          ],
+          "rmse": 0.3686454264734341,
+          "converged": true
+        },
+        {
+          "order": [
+            2,
+            0,
+            1
+          ],
+          "rmse": 0.368828311701331,
+          "converged": true
+        }
+      ]
+    }
+  },
+  "metrics": [
+    {
+      "turbine_id": 1,
+      "model": "catboost",
+      "horizon": "1-48h",
+      "n": 1440,
+      "origins": 30,
+      "mae": 0.3119161021509936,
+      "rmse": 0.3491893775589685
+    },
+    {
+      "turbine_id": 1,
+      "model": "catboost",
+      "horizon": "1-24h",
+      "n": 720,
+      "origins": 30,
+      "mae": 0.2988128101807581,
+      "rmse": 0.3369108711471527
+    },
+    {
+      "turbine_id": 1,
+      "model": "catboost",
+      "horizon": "25-48h",
+      "n": 720,
+      "origins": 30,
+      "mae": 0.32501939412122904,
+      "rmse": 0.3610505611447051
+    },
+    {
+      "turbine_id": 1,
+      "model": "context_mean",
+      "horizon": "1-48h",
+      "n": 1440,
+      "origins": 30,
+      "mae": 0.29515109678130513,
+      "rmse": 0.3488415672675891
+    },
+    {
+      "turbine_id": 1,
+      "model": "context_mean",
+      "horizon": "1-24h",
+      "n": 720,
+      "origins": 30,
+      "mae": 0.2963586033950617,
+      "rmse": 0.3507858974951716
+    },
+    {
+      "turbine_id": 1,
+      "model": "context_mean",
+      "horizon": "25-48h",
+      "n": 720,
+      "origins": 30,
+      "mae": 0.2939435901675485,
+      "rmse": 0.3468863390592411
+    },
+    {
+      "turbine_id": 1,
+      "model": "persistence",
+      "horizon": "1-48h",
+      "n": 1440,
+      "origins": 30,
+      "mae": 0.33449768518518513,
+      "rmse": 0.4579979875892496
+    },
+    {
+      "turbine_id": 1,
+      "model": "persistence",
+      "horizon": "1-24h",
+      "n": 720,
+      "origins": 30,
+      "mae": 0.3084837962962963,
+      "rmse": 0.443567602924512
+    },
+    {
+      "turbine_id": 1,
+      "model": "persistence",
+      "horizon": "25-48h",
+      "n": 720,
+      "origins": 30,
+      "mae": 0.3605115740740741,
+      "rmse": 0.4719873885046161
+    },
+    {
+      "turbine_id": 1,
+      "model": "sarimax",
+      "horizon": "1-48h",
+      "n": 1440,
+      "origins": 30,
+      "mae": 0.3047148350663287,
+      "rmse": 0.34619872995691997
+    },
+    {
+      "turbine_id": 1,
+      "model": "sarimax",
+      "horizon": "1-24h",
+      "n": 720,
+      "origins": 30,
+      "mae": 0.2849748039071627,
+      "rmse": 0.3346795014291256
+    },
+    {
+      "turbine_id": 1,
+      "model": "sarimax",
+      "horizon": "25-48h",
+      "n": 720,
+      "origins": 30,
+      "mae": 0.32445486622549474,
+      "rmse": 0.3573468239270089
+    },
+    {
+      "turbine_id": 2,
+      "model": "catboost",
+      "horizon": "1-48h",
+      "n": 1440,
+      "origins": 30,
+      "mae": 0.3125855971068668,
+      "rmse": 0.3515609104391192
+    },
+    {
+      "turbine_id": 2,
+      "model": "catboost",
+      "horizon": "1-24h",
+      "n": 720,
+      "origins": 30,
+      "mae": 0.30138417816967633,
+      "rmse": 0.34141195593491885
+    },
+    {
+      "turbine_id": 2,
+      "model": "catboost",
+      "horizon": "25-48h",
+      "n": 720,
+      "origins": 30,
+      "mae": 0.3237870160440573,
+      "rmse": 0.361424990616667
+    },
+    {
+      "turbine_id": 2,
+      "model": "context_mean",
+      "horizon": "1-48h",
+      "n": 1440,
+      "origins": 30,
+      "mae": 0.2940050981040564,
+      "rmse": 0.34737553940793314
+    },
+    {
+      "turbine_id": 2,
+      "model": "context_mean",
+      "horizon": "1-24h",
+      "n": 720,
+      "origins": 30,
+      "mae": 0.29473263888888884,
+      "rmse": 0.3485729478865135
+    },
+    {
+      "turbine_id": 2,
+      "model": "context_mean",
+      "horizon": "25-48h",
+      "n": 720,
+      "origins": 30,
+      "mae": 0.29327755731922395,
+      "rmse": 0.3461739891436255
+    },
+    {
+      "turbine_id": 2,
+      "model": "persistence",
+      "horizon": "1-48h",
+      "n": 1440,
+      "origins": 30,
+      "mae": 0.3316701388888889,
+      "rmse": 0.45539406648202724
+    },
+    {
+      "turbine_id": 2,
+      "model": "persistence",
+      "horizon": "1-24h",
+      "n": 720,
+      "origins": 30,
+      "mae": 0.30797685185185186,
+      "rmse": 0.4438380237857328
+    },
+    {
+      "turbine_id": 2,
+      "model": "persistence",
+      "horizon": "25-48h",
+      "n": 720,
+      "origins": 30,
+      "mae": 0.3553634259259259,
+      "rmse": 0.46666403355738634
+    },
+    {
+      "turbine_id": 2,
+      "model": "sarimax",
+      "horizon": "1-48h",
+      "n": 1440,
+      "origins": 30,
+      "mae": 0.30217438905481386,
+      "rmse": 0.3432415649241246
+    },
+    {
+      "turbine_id": 2,
+      "model": "sarimax",
+      "horizon": "1-24h",
+      "n": 720,
+      "origins": 30,
+      "mae": 0.28391564776270106,
+      "rmse": 0.3329247811583353
+    },
+    {
+      "turbine_id": 2,
+      "model": "sarimax",
+      "horizon": "25-48h",
+      "n": 720,
+      "origins": 30,
+      "mae": 0.32043313034692666,
+      "rmse": 0.35325717809239016
+    }
+  ],
+  "holdout": "30 daily origins per turbine, Jan 1-30; targets through Jan 31",
+  "notes": [
+    "Fixed model parameters throughout January; only supplied context updates.",
+    "No future weather. Forward-fill of inputs is causal; scoring targets are never imputed.",
+    "January observations may enter later January contexts, as in production.",
+    "Overlapping 48h forecasts are distinct origin/horizon pairs, not independent observations."
+  ]
+}

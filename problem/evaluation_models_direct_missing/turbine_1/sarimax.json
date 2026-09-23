@@ -1,0 +1,52 @@
+{
+  "gap_policy": "preserve",
+  "order": [
+    1,
+    0,
+    0
+  ],
+  "seasonal_order": [
+    0,
+    0,
+    0,
+    0
+  ],
+  "seasonality": "Two annual Fourier harmonics and one daily harmonic in exog",
+  "param_names": [
+    "constant",
+    "year_sin",
+    "year_cos",
+    "year_sin2",
+    "year_cos2",
+    "day_sin",
+    "day_cos",
+    "ar.L1",
+    "sigma2"
+  ],
+  "params": [
+    0.3727237386929883,
+    0.03460289819314639,
+    0.07842417012763983,
+    -0.033038116710876,
+    -0.007415786525864394,
+    -0.028410035643000674,
+    -0.013367840831080058,
+    0.8968486882538861,
+    0.02436320783431237
+  ],
+  "exog_columns": [
+    "constant",
+    "year_sin",
+    "year_cos",
+    "year_sin2",
+    "year_cos2",
+    "day_sin",
+    "day_cos"
+  ],
+  "trained_until_exclusive": "2026-01-01 00:00:00",
+  "converged": true,
+  "optimizer_iterations": 22,
+  "aic": -20088.84610114741,
+  "training_seconds": 2.279350250028074,
+  "warnings": []
+}
