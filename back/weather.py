@@ -17,6 +17,7 @@ from back.schemas import UTC
 
 PREVIOUS_RUNS_URL = "https://previous-runs-api.open-meteo.com/v1/forecast"
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
+HISTORICAL_URL = "https://archive-api.open-meteo.com/v1/archive"
 
 
 def forecast_lead_days(valid_time: datetime, cutoff: datetime, margin_hours: int) -> int:
@@ -51,10 +52,20 @@ class OpenMeteo:
         allow_live = horizon_start >= now
         current_hour = now.replace(minute=0, second=0, microsecond=0)
         live_hours = {h for h in hours if allow_live and h >= current_hour}
-        archived_hours = hours - live_hours
+        # ERA5 has a publication delay of about five days. Leave six complete
+        # UTC days for availability. Reanalysis is recorded-weather replay,
+        # not a forecast that was available at the historical horizon start.
+        historical_before = (now - timedelta(days=6)).replace(hour=0, minute=0, second=0, microsecond=0)
+        historical_hours = {
+            h for h in hours
+            if h < historical_before and self.settings.use_historical_weather
+        }
+        archived_hours = hours - live_hours - historical_hours
         cutoff = min(horizon_start, now)
         values: dict[datetime, WeatherValue] = {}
         calls = []
+        if historical_hours:
+            calls.append(self._historical(turbine, sorted(historical_hours)))
         if archived_hours:
             calls.append(self._archived(turbine, sorted(archived_hours), cutoff))
         if live_hours:
@@ -107,6 +118,22 @@ class OpenMeteo:
             for h in hours
         }
 
+    async def _historical(self, turbine: Turbine, hours: list[datetime]) -> dict[datetime, WeatherValue]:
+        if self.settings.wind_variable not in {"wind_speed_10m", "wind_speed_100m"}:
+            raise PreparationError(
+                "ERA5 historical weather supports wind at 10m or 100m; configure WEATHER_WIND_VARIABLE accordingly.",
+                "historical_weather_configuration", 503,
+            )
+        params = self._params(turbine, hours)
+        params["models"] = "era5"
+        params["hourly"] = f"{self.settings.wind_variable},temperature_2m"
+        payload = await self._get_json(HISTORICAL_URL, params, ttl=86400 * 30)
+        index = self._time_index(payload)
+        return {
+            h: self._value(payload, index, h, self.settings.wind_variable, "temperature_2m", "open_meteo_reanalysis_era5")
+            for h in hours
+        }
+
     async def _live(self, turbine: Turbine, hours: list[datetime]) -> dict[datetime, WeatherValue]:
         params = self._params(turbine, hours)
         params["hourly"] = f"{self.settings.wind_variable},temperature_2m"
@@ -134,7 +161,7 @@ class OpenMeteo:
                 raise ValueError("unexpected weather units")
         except (KeyError, IndexError, TypeError, ValueError) as exc:
             raise PreparationError(
-                f"No usable wind/temperature forecast for {hour.isoformat()}. Choose another date or verify provider coverage and units.",
+                f"No usable wind/temperature weather data for {hour.isoformat()}. Choose another date or verify provider coverage and units.",
                 "weather_unavailable", 422,
             ) from exc
         return WeatherValue(wind, temp, source)

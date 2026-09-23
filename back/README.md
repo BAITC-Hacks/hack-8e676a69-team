@@ -35,6 +35,7 @@ Copy .env.example to .env in this folder. All relative configuration paths resol
 | WEATHER_MODEL | gfs_global | Online forecast model |
 | WEATHER_WIND_VARIABLE | wind_speed_100m | Configurable weather predictor height |
 | USE_DATASET_FOR_HORIZON | true | Permit observed CSV weather for historical known-weather tests |
+| USE_HISTORICAL_WEATHER | true | Fill old missing weather from ERA5, including context and horizon gaps |
 | FORECAST_AVAILABILITY_MARGIN_HOURS | 12 | Conservative archived forecast availability allowance |
 | TICKET_TIMEOUT_SECONDS | 1800 | Worker response deadline |
 | RESULT_TTL_SECONDS | 1800 | Finished-result retrieval window |
@@ -131,11 +132,11 @@ This exact example was verified with the real turbine A data and weather API. In
 
 Native ten-minute measurements are preserved. Coarser grids aggregate observations; finer grids interpolate between adjacent observations. Online weather is hourly, so finer grids use linear interpolation and mark it in weather_source. Interpolation does not add independent meteorological observations.
 
-Historical internet inputs use Open-Meteo Previous Runs with explicit GFS selection. Upcoming points can use its live Forecast API. The configured wind height must be agreed with ML. Source labels distinguish dataset measurements, aggregation/interpolation, archived lead offsets, and live forecasts. [Previous Runs documentation](https://open-meteo.com/en/docs/previous-runs-api), [Forecast documentation](https://open-meteo.com/en/docs).
+Local CSV weather takes priority. Any missing rows, both before the horizon and inside its 48 hours, are requested from Open-Meteo. This includes dates before the local archive starts, internal gaps, and dates after it ends. Old dates use the Historical Weather API with ERA5 (including 2023 and earlier); rows are labelled `open_meteo_reanalysis_era5`. ERA5 has about five days of publication delay, so the backend only requests dates before UTC midnight six days ago. More recent replay weather uses Previous Runs with GFS; upcoming points for a current/future horizon use the live Forecast API. ERA5 supports the configured wind heights of 10m or 100m, not arbitrary heights. All sources use m/s and Celsius, and responses are cached. If the provider cannot supply usable data, the ticket returns an explicit error rather than fabricated weather. [Historical Weather documentation](https://open-meteo.com/en/docs/historical-weather-api), [Previous Runs documentation](https://open-meteo.com/en/docs/previous-runs-api), [Forecast documentation](https://open-meteo.com/en/docs).
 
 Archived offsets are relative to individual target hours. Backend selects older offsets with the configured availability margin, including both interpolation endpoints. This is a conservative policy assumption, not a verification of exact historical publication timestamps.
 
-Observed CSV weather inside the forecast horizon is a known-weather diagnostic. Set USE_DATASET_FOR_HORIZON=false on the backend for archived-weather forecasting backtests.
+Observed CSV weather and ERA5 reanalysis inside the forecast horizon are known-weather diagnostics, not weather forecasts available at that historical time. For archived-forecast-only backtests set **both** `USE_DATASET_FOR_HORIZON=false` and `USE_HISTORICAL_WEATHER=false`; that mode remains subject to Previous Runs coverage limits. Defaults enable local weather plus ERA5 fallback and require no frontend changes or new dependencies.
 
 ## Lifecycle, tests, and deployment
 

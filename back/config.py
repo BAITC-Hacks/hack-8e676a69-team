@@ -49,6 +49,7 @@ class Settings:
     result_ttl_seconds: int = 1800
     max_active_tickets: int = 32
     use_dataset_for_horizon: bool = True
+    use_historical_weather: bool = True
     sampling_step: int = 6
     inference_enabled: bool = True
     inference_model_dir: Path = PROJECT_ROOT / 'inference' / 'models'
@@ -81,6 +82,7 @@ class Settings:
             result_ttl_seconds=int(os.getenv("RESULT_TTL_SECONDS", "1800")),
             max_active_tickets=int(os.getenv("MAX_ACTIVE_TICKETS", "32")),
             use_dataset_for_horizon=os.getenv("USE_DATASET_FOR_HORIZON", "true").lower() in {"1", "true", "yes"},
+            use_historical_weather=os.getenv("USE_HISTORICAL_WEATHER", "true").lower() in {"1", "true", "yes"},
             sampling_step=int(os.getenv("ML_STEP", "6")),
             inference_enabled=os.getenv('INFERENCE_ENABLED', 'true').lower() in {'1', 'true', 'yes'},
             inference_model_dir=env_path('INFERENCE_MODEL_DIR', defaults.inference_model_dir),

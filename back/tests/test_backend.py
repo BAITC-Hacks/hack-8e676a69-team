@@ -143,7 +143,7 @@ def test_forecast_leads_respect_common_cutoff_including_interpolation_neighbor()
 
 
 def test_archive_is_resampled_honestly_and_reused_from_cache(tmp_path):
-    settings = settings_for(tmp_path)
+    settings = settings_for(tmp_path, use_historical_weather=False)
     cutoff = datetime(2026, 2, 5, tzinfo=UTC)
     calls = []
 
