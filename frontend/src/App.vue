@@ -11,6 +11,9 @@ import {
   normalizeForecastResponse,
 } from './utils/backendForecast'
 
+const REQUEST_HISTORY_STORAGE_KEY = 'windForecast.requestHistory.v1'
+const REQUEST_HISTORY_LIMIT = 50
+
 const language = ref('ru')
 const windFarms = ref([])
 const turbines = ref([])
@@ -26,6 +29,8 @@ const forecastStatus = ref('idle')
 const forecastError = ref('')
 const currentTicket = ref(null)
 const rawForecast = ref(null)
+const requestHistory = ref(loadRequestHistory())
+const selectedHistoryTicketId = ref('')
 
 let autoSubmitPaused = false
 let submitTimer
@@ -45,12 +50,103 @@ const selectedTurbine = computed(() =>
 )
 
 function selectTurbine(turbineId) {
+  selectedHistoryTicketId.value = ''
   selectedTurbineId.value = turbineId
 }
 
 function clearPolling() {
   window.clearTimeout(submitTimer)
   window.clearTimeout(pollTimer)
+}
+
+function loadRequestHistory() {
+  if (typeof window === 'undefined') return []
+
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(REQUEST_HISTORY_STORAGE_KEY) ?? '[]')
+
+    return Array.isArray(saved)
+      ? saved
+          .filter((entry) => entry?.ticketId)
+          .sort((a, b) => Date.parse(b.updatedAt ?? b.createdAt) - Date.parse(a.updatedAt ?? a.createdAt))
+      : []
+  } catch {
+    return []
+  }
+}
+
+function persistRequestHistory() {
+  if (typeof window === 'undefined') return
+
+  try {
+    window.localStorage.setItem(REQUEST_HISTORY_STORAGE_KEY, JSON.stringify(requestHistory.value))
+  } catch {
+    // Keep the in-memory history if localStorage is unavailable or full.
+  }
+}
+
+function upsertRequestHistory(ticketId, patch) {
+  if (!ticketId) return
+
+  const existing = requestHistory.value.find((entry) => entry.ticketId === ticketId)
+  const updated = {
+    ...(existing ?? {}),
+    ...patch,
+    ticketId,
+    updatedAt: new Date().toISOString(),
+  }
+
+  requestHistory.value = [
+    updated,
+    ...requestHistory.value.filter((entry) => entry.ticketId !== ticketId),
+  ].slice(0, REQUEST_HISTORY_LIMIT)
+  persistRequestHistory()
+}
+
+async function selectHistoryTicket(ticketId) {
+  const entry = requestHistory.value.find((item) => item.ticketId === ticketId)
+
+  if (!entry) return
+
+  requestSerial += 1
+  clearPolling()
+  autoSubmitPaused = true
+  selectedHistoryTicketId.value = ticketId
+  forecastError.value = entry.errorMessage ?? ''
+  currentTicket.value = {
+    ...(entry.ticket ?? {}),
+    ticket_id: ticketId,
+    status: entry.status === 'done' ? 'done' : entry.status,
+  }
+  rawForecast.value = entry.response ?? null
+
+  const turbine = turbines.value.find(
+    (item) => item.backendId === entry.turbineId || item.id === entry.turbineId,
+  )
+
+  if (turbine) {
+    selectedWindFarmId.value = turbine.windFarmId
+    selectedTurbineId.value = turbine.id
+  }
+
+  if (entry.horizonStart) startDate.value = entry.horizonStart
+  if (entry.historyDays) historyDays.value = entry.historyDays
+
+  if (entry.status === 'done' && entry.response && turbine) {
+    turbines.value = applyForecastToTurbines(
+      turbines.value,
+      entry.turbineId,
+      normalizeForecastResponse(entry.response, t.value.agentNames),
+    )
+    forecastStatus.value = 'succeeded'
+  } else if (entry.status === 'error') {
+    forecastStatus.value = 'error'
+  } else {
+    forecastStatus.value = entry.status ?? 'pending'
+  }
+
+  await nextTick()
+  autoSubmitPaused = false
 }
 
 async function loadBootstrap() {
@@ -98,6 +194,7 @@ async function submitForecast() {
 
   const serial = ++requestSerial
   clearPolling()
+  selectedHistoryTicketId.value = ''
   forecastStatus.value = 'submitting'
   forecastError.value = ''
   rawForecast.value = null
@@ -113,6 +210,19 @@ async function submitForecast() {
     if (serial !== requestSerial) return
 
     currentTicket.value = ticket
+    selectedHistoryTicketId.value = ticket.ticket_id
+    upsertRequestHistory(ticket.ticket_id, {
+      status: ticket.status ?? 'preparing',
+      ticket,
+      turbineId: turbine.backendId ?? turbine.id,
+      turbineName: turbine.name,
+      windFarmId: turbine.windFarmId,
+      horizonStart: startDate.value,
+      historyDays: historyDays.value,
+      createdAt: new Date().toISOString(),
+      response: null,
+      errorMessage: '',
+    })
     forecastStatus.value = ticket.status ?? 'preparing'
     pollTimer = window.setTimeout(
       () => pollTicket(ticket.ticket_id, turbine.backendId ?? turbine.id, serial),
@@ -134,6 +244,11 @@ async function pollTicket(ticketId, turbineId, serial) {
     if (response?.status === 'preparing' || response?.status === 'pending') {
       forecastStatus.value = response.status
       currentTicket.value = { ...(currentTicket.value ?? {}), ...response }
+      upsertRequestHistory(ticketId, {
+        status: response.status,
+        ticket: currentTicket.value,
+        errorMessage: '',
+      })
       pollTimer = window.setTimeout(
         () => pollTicket(ticketId, turbineId, serial),
         response.poll_after_ms ?? pollIntervalMs.value,
@@ -142,6 +257,12 @@ async function pollTicket(ticketId, turbineId, serial) {
     }
 
     rawForecast.value = response
+    upsertRequestHistory(ticketId, {
+      status: 'done',
+      ticket: { ...(currentTicket.value ?? {}), ticket_id: ticketId, status: 'done' },
+      response,
+      errorMessage: '',
+    })
     turbines.value = applyForecastToTurbines(
       turbines.value,
       turbineId,
@@ -152,11 +273,18 @@ async function pollTicket(ticketId, turbineId, serial) {
     if (serial !== requestSerial) return
     forecastStatus.value = 'error'
     forecastError.value = error.message
+    upsertRequestHistory(ticketId, {
+      status: 'error',
+      errorMessage: error.message,
+      ticket: { ...(currentTicket.value ?? {}), ticket_id: ticketId, status: 'error' },
+    })
   }
 }
 
 watch(selectedWindFarmId, () => {
-  selectedTurbineId.value = visibleTurbines.value[0]?.id
+  if (!visibleTurbines.value.some((turbine) => turbine.id === selectedTurbineId.value)) {
+    selectedTurbineId.value = visibleTurbines.value[0]?.id
+  }
 })
 
 watch([selectedTurbineId, startDate], scheduleForecast)
@@ -179,11 +307,14 @@ onBeforeUnmount(() => {
       :bootstrap-status="bootstrapStatus"
       :forecast-error="forecastError"
       :forecast-status="forecastStatus"
+      :request-history="requestHistory"
+      :selected-history-ticket-id="selectedHistoryTicketId"
       :t="t"
       :ticket-id="currentTicket?.ticket_id"
       :visible-turbines="visibleTurbines"
       :wind-farms="windFarms"
       @retry-bootstrap="loadBootstrap"
+      @select-history="selectHistoryTicket"
       @select-turbine="selectTurbine"
     />
 
