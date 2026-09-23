@@ -1,0 +1,16 @@
+[Unit]
+Description=HackAlem wind weather and ticket backend
+After=network.target
+
+[Service]
+User=azureuser
+WorkingDirectory=/data/app
+EnvironmentFile=-/data/app/.env
+Environment=PYTHONUNBUFFERED=1
+# --host 127.0.0.1 keeps the app unreachable from the internet; only Caddy may reach it.
+ExecStart=/data/app/.venv/bin/uvicorn back.main:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target

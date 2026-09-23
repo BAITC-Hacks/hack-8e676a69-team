@@ -1,0 +1,5 @@
+# Change the hostname here if the DNS label is renamed, then `sudo systemctl reload caddy`.
+hackalem-pornofilms.polandcentral.cloudapp.azure.com {
+  encode zstd gzip
+  reverse_proxy 127.0.0.1:8000
+}
