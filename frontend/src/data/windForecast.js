@@ -1,0 +1,151 @@
+export const initialForecastState = {
+  language: 'ru',
+  selectedWindFarmId: 'wpp-main',
+  selectedTurbineId: 'turbine-1',
+  startDate: '2026-02-01',
+}
+
+export const windFarms = [
+  {
+    id: 'wpp-main',
+    coords: [43.644174, 78.537216],
+    coordLabel: '43.644174, 78.537216',
+    testPeriod: '01-28.02.2026',
+    horizon: '24-48 h',
+    name: {
+      en: 'Wind Power Plant',
+      ru: 'ВЭС',
+      kk: 'Жел электр станциясы',
+    },
+    region: {
+      en: 'Almaty Region',
+      ru: 'Алматинская область',
+      kk: 'Алматы облысы',
+    },
+  },
+]
+
+export const turbines = [
+  {
+    id: 'turbine-1',
+    windFarmId: 'wpp-main',
+    coords: [43.64515, 78.535604],
+    coordLabel: '43.645150, 78.535604',
+    agentForecasts: [
+      {
+        id: 'weather-agent',
+        nameKey: 'weather',
+        color: '#157a65',
+        points: [
+          { hour: 0, value: 0.58 },
+          { hour: 6, value: 0.64 },
+          { hour: 12, value: 0.77 },
+          { hour: 18, value: 0.73 },
+          { hour: 24, value: 0.69 },
+          { hour: 30, value: 0.82 },
+          { hour: 36, value: 0.74 },
+          { hour: 42, value: 0.67 },
+          { hour: 48, value: 0.71 },
+        ],
+      },
+      {
+        id: 'model-agent',
+        nameKey: 'model',
+        color: '#2877c8',
+        points: [
+          { hour: 0, value: 0.55 },
+          { hour: 6, value: 0.61 },
+          { hour: 12, value: 0.72 },
+          { hour: 18, value: 0.78 },
+          { hour: 24, value: 0.76 },
+          { hour: 30, value: 0.8 },
+          { hour: 36, value: 0.77 },
+          { hour: 42, value: 0.7 },
+          { hour: 48, value: 0.74 },
+        ],
+      },
+      {
+        id: 'critic-agent',
+        nameKey: 'validation',
+        color: '#d5961f',
+        points: [
+          { hour: 0, value: 0.51 },
+          { hour: 6, value: 0.59 },
+          { hour: 12, value: 0.7 },
+          { hour: 18, value: 0.68 },
+          { hour: 24, value: 0.73 },
+          { hour: 30, value: 0.76 },
+          { hour: 36, value: 0.71 },
+          { hour: 42, value: 0.66 },
+          { hour: 48, value: 0.69 },
+        ],
+      },
+    ],
+    name: {
+      en: 'Turbine 1',
+      ru: 'Турбина 1',
+      kk: '1-турбина',
+    },
+  },
+  {
+    id: 'turbine-2',
+    windFarmId: 'wpp-main',
+    coords: [43.643198, 78.538828],
+    coordLabel: '43.643198, 78.538828',
+    agentForecasts: [
+      {
+        id: 'weather-agent',
+        nameKey: 'weather',
+        color: '#157a65',
+        points: [
+          { hour: 0, value: 0.49 },
+          { hour: 6, value: 0.56 },
+          { hour: 12, value: 0.68 },
+          { hour: 18, value: 0.74 },
+          { hour: 24, value: 0.7 },
+          { hour: 30, value: 0.77 },
+          { hour: 36, value: 0.72 },
+          { hour: 42, value: 0.65 },
+          { hour: 48, value: 0.67 },
+        ],
+      },
+      {
+        id: 'model-agent',
+        nameKey: 'model',
+        color: '#2877c8',
+        points: [
+          { hour: 0, value: 0.52 },
+          { hour: 6, value: 0.6 },
+          { hour: 12, value: 0.66 },
+          { hour: 18, value: 0.72 },
+          { hour: 24, value: 0.75 },
+          { hour: 30, value: 0.73 },
+          { hour: 36, value: 0.7 },
+          { hour: 42, value: 0.69 },
+          { hour: 48, value: 0.71 },
+        ],
+      },
+      {
+        id: 'critic-agent',
+        nameKey: 'validation',
+        color: '#d5961f',
+        points: [
+          { hour: 0, value: 0.47 },
+          { hour: 6, value: 0.53 },
+          { hour: 12, value: 0.61 },
+          { hour: 18, value: 0.69 },
+          { hour: 24, value: 0.71 },
+          { hour: 30, value: 0.74 },
+          { hour: 36, value: 0.68 },
+          { hour: 42, value: 0.62 },
+          { hour: 48, value: 0.66 },
+        ],
+      },
+    ],
+    name: {
+      en: 'Turbine 2',
+      ru: 'Турбина 2',
+      kk: '2-турбина',
+    },
+  },
+]

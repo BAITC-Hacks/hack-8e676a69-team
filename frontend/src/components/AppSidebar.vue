@@ -1,0 +1,314 @@
+<script setup>
+import { CalendarDays, Factory, Languages, Zap } from '@lucide/vue'
+import { languageOptions } from '../i18n/messages'
+import { localized } from '../utils/localized'
+
+defineProps({
+  language: {
+    type: String,
+    required: true,
+  },
+  selectedWindFarmId: {
+    type: String,
+    required: true,
+  },
+  startDate: {
+    type: String,
+    required: true,
+  },
+  t: {
+    type: Object,
+    required: true,
+  },
+  visibleTurbines: {
+    type: Array,
+    required: true,
+  },
+  windFarms: {
+    type: Array,
+    required: true,
+  },
+})
+
+const emit = defineEmits([
+  'select-turbine',
+  'update:language',
+  'update:selectedWindFarmId',
+  'update:startDate',
+])
+</script>
+
+<template>
+  <aside class="sidebar" aria-label="Map controls">
+    <header class="brand-block">
+      <div class="brand-main">
+        <div class="brand-icon">
+          <Zap :size="22" />
+        </div>
+        <div>
+          <h1>{{ t.appTitle }}</h1>
+          <p>{{ t.subtitle }}</p>
+        </div>
+      </div>
+
+      <div class="language-switcher">
+        <Languages :size="16" />
+        <div class="compact-segmented-control" role="group" :aria-label="t.language">
+          <button
+            v-for="option in languageOptions"
+            :key="option.code"
+            type="button"
+            :class="{ active: language === option.code }"
+            @click="emit('update:language', option.code)"
+          >
+            {{ option.label }}
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <section class="control-section">
+      <div class="section-title">
+        <Factory :size="18" />
+        <span>{{ t.windFarmLabel }}</span>
+      </div>
+      <label class="field">
+        <span>{{ t.windFarmLabel }}</span>
+        <select
+          :value="selectedWindFarmId"
+          @change="emit('update:selectedWindFarmId', $event.target.value)"
+        >
+          <option v-for="windFarm in windFarms" :key="windFarm.id" :value="windFarm.id">
+            {{ localized(windFarm.name, language) }}
+          </option>
+        </select>
+      </label>
+    </section>
+
+    <section class="control-section">
+      <div class="section-title">
+        <CalendarDays :size="18" />
+        <span>{{ t.calculationStartDate }}</span>
+      </div>
+      <label class="field">
+        <span>{{ t.calculationStartDate }}</span>
+        <input
+          :value="startDate"
+          type="date"
+          @input="emit('update:startDate', $event.target.value)"
+        />
+      </label>
+      <p class="field-hint">{{ t.calculationStartHint }}</p>
+    </section>
+
+    <section class="asset-list">
+      <div class="section-title">
+        <Factory :size="18" />
+        <span>{{ t.windFarmInfo }}</span>
+      </div>
+      <button
+        v-for="turbine in visibleTurbines"
+        :key="turbine.id"
+        type="button"
+        class="asset-item"
+        @click="emit('select-turbine', turbine.id)"
+      >
+        <span class="swatch"></span>
+        <span>
+          <strong>{{ localized(turbine.name, language) }}</strong>
+          <small>{{ t.coordinates }}: {{ turbine.coordLabel }}</small>
+        </span>
+      </button>
+    </section>
+  </aside>
+</template>
+
+<style scoped>
+.sidebar {
+  grid-row: 1 / 3;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-height: 100svh;
+  padding: 24px;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+}
+
+.brand-block {
+  display: grid;
+  gap: 16px;
+  padding-bottom: 8px;
+}
+
+.brand-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.brand-icon {
+  display: grid;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  color: #ffffff;
+  background: var(--accent);
+  border-radius: 8px;
+  box-shadow: 0 10px 22px rgba(21, 122, 101, 0.24);
+}
+
+h1 {
+  margin: 0 0 5px;
+  font-size: 26px;
+  line-height: 1.1;
+  letter-spacing: 0;
+}
+
+p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.language-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px;
+  color: var(--muted);
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.compact-segmented-control {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+  flex: 1;
+  max-width: 210px;
+  padding: 3px;
+  background: #edf1ef;
+  border-radius: 7px;
+}
+
+.compact-segmented-control button {
+  min-height: 30px;
+  color: var(--muted);
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.compact-segmented-control button.active {
+  color: var(--accent);
+  background: #ffffff;
+  box-shadow: 0 5px 13px rgba(34, 47, 42, 0.1);
+}
+
+.control-section,
+.asset-list {
+  display: grid;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.field-hint {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.asset-list {
+  flex: 1;
+  align-content: start;
+}
+
+.asset-item {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr);
+  gap: 11px;
+  width: 100%;
+  padding: 11px;
+  text-align: left;
+  background: var(--panel-strong);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition:
+    border-color 0.18s ease,
+    transform 0.18s ease,
+    background 0.18s ease;
+}
+
+.asset-item:hover {
+  background: #ffffff;
+  border-color: rgba(21, 122, 101, 0.34);
+  transform: translateY(-1px);
+}
+
+.asset-item strong,
+.asset-item small {
+  display: block;
+}
+
+.asset-item strong {
+  overflow: hidden;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.28;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.asset-item small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.swatch {
+  flex: 0 0 10px;
+  width: 10px;
+  height: 10px;
+  background: #1c9f88;
+  border-radius: 999px;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.8);
+}
+
+@media (max-width: 880px) {
+  .sidebar {
+    grid-row: auto;
+    max-height: none;
+    min-height: auto;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .asset-list {
+    max-height: 250px;
+    overflow-y: auto;
+  }
+}
+
+@media (max-width: 520px) {
+  .sidebar {
+    padding: 18px;
+  }
+
+  .brand-main {
+    gap: 11px;
+  }
+
+  h1 {
+    font-size: 22px;
+  }
+}
+</style>
