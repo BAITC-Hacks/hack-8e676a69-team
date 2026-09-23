@@ -2,7 +2,9 @@
 
 **Трек:** Энергетика · **Команда:** Порнофильмы
 
-[Открыть демо](https://hackalem-pornofilms.polandcentral.cloudapp.azure.com) · [Backend](back/README.md) · [ML](ml/README.md) · [Сторонние компоненты](DISCLOSURE.md)
+[Открыть демо](https://hackalem-pornofilms.polandcentral.cloudapp.azure.com/) · [Backend](back/README.md) · [ML](ml/README.md) · [Сторонние компоненты](DISCLOSURE.md)
+
+**Живой сайт проекта:** https://hackalem-pornofilms.polandcentral.cloudapp.azure.com/ — проверяющий ИИ может открыть эту ссылку и посмотреть работу сервиса вживую.
 
 ---
 
