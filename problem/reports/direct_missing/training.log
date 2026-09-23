@@ -1,0 +1,187 @@
+[15:54:22] TURBINE 1: preparing unchanged 168h context and 48h targets
+[15:54:22]   Feature windows 1/4197 (0%)
+[15:54:23]   Feature windows 501/4197 (12%)
+[15:54:25]   Feature windows 1001/4197 (24%)
+[15:54:26]   Feature windows 1501/4197 (36%)
+[15:54:27]   Feature windows 2001/4197 (48%)
+[15:54:28]   Feature windows 2501/4197 (60%)
+[15:54:30]   Feature windows 3001/4197 (72%)
+[15:54:31]   Feature windows 3501/4197 (83%)
+[15:54:33]   Feature windows 4001/4197 (95%)
+[15:54:33]   Feature windows complete; skipped 252 insufficient-context/target windows
+[15:54:38] 1/96 (1%) | turbine 1, horizon 01 | 509 trees | Dec RMSE 0.1318 | 4.6s (selection + evaluation + production fits)
+[15:54:41] 2/96 (2%) | turbine 1, horizon 02 | 265 trees | Dec RMSE 0.2199 | 2.5s (selection + evaluation + production fits)
+[15:54:43] 3/96 (3%) | turbine 1, horizon 03 | 296 trees | Dec RMSE 0.2733 | 2.8s (selection + evaluation + production fits)
+[15:54:45] 4/96 (4%) | turbine 1, horizon 04 | 131 trees | Dec RMSE 0.3169 | 1.4s (selection + evaluation + production fits)
+[15:54:46] 5/96 (5%) | turbine 1, horizon 05 | 138 trees | Dec RMSE 0.3486 | 1.5s (selection + evaluation + production fits)
+[15:54:50] 6/96 (6%) | turbine 1, horizon 06 | 410 trees | Dec RMSE 0.3658 | 3.7s (selection + evaluation + production fits)
+[15:54:53] 7/96 (7%) | turbine 1, horizon 07 | 376 trees | Dec RMSE 0.3652 | 3.4s (selection + evaluation + production fits)
+[15:54:55] 8/96 (8%) | turbine 1, horizon 08 | 210 trees | Dec RMSE 0.3609 | 2.0s (selection + evaluation + production fits)
+[15:54:57] 9/96 (9%) | turbine 1, horizon 09 | 125 trees | Dec RMSE 0.3699 | 1.3s (selection + evaluation + production fits)
+[15:55:00] 10/96 (10%) | turbine 1, horizon 10 | 286 trees | Dec RMSE 0.3614 | 2.7s (selection + evaluation + production fits)
+[15:55:01] 11/96 (11%) | turbine 1, horizon 11 | 126 trees | Dec RMSE 0.3697 | 1.3s (selection + evaluation + production fits)
+[15:55:02] 12/96 (12%) | turbine 1, horizon 12 | 121 trees | Dec RMSE 0.3850 | 1.3s (selection + evaluation + production fits)
+[15:55:03] 13/96 (14%) | turbine 1, horizon 13 | 82 trees | Dec RMSE 0.3731 | 1.0s (selection + evaluation + production fits)
+[15:55:04] 14/96 (15%) | turbine 1, horizon 14 | 112 trees | Dec RMSE 0.3624 | 1.2s (selection + evaluation + production fits)
+[15:55:06] 15/96 (16%) | turbine 1, horizon 15 | 112 trees | Dec RMSE 0.3653 | 1.2s (selection + evaluation + production fits)
+[15:55:07] 16/96 (17%) | turbine 1, horizon 16 | 105 trees | Dec RMSE 0.3660 | 1.2s (selection + evaluation + production fits)
+[15:55:10] 17/96 (18%) | turbine 1, horizon 17 | 312 trees | Dec RMSE 0.3746 | 2.9s (selection + evaluation + production fits)
+[15:55:11] 18/96 (19%) | turbine 1, horizon 18 | 134 trees | Dec RMSE 0.3865 | 1.4s (selection + evaluation + production fits)
+[15:55:12] 19/96 (20%) | turbine 1, horizon 19 | 63 trees | Dec RMSE 0.3775 | 0.8s (selection + evaluation + production fits)
+[15:55:13] 20/96 (21%) | turbine 1, horizon 20 | 123 trees | Dec RMSE 0.3588 | 1.3s (selection + evaluation + production fits)
+[15:55:15] 21/96 (22%) | turbine 1, horizon 21 | 117 trees | Dec RMSE 0.3603 | 1.3s (selection + evaluation + production fits)
+[15:55:16] 22/96 (23%) | turbine 1, horizon 22 | 86 trees | Dec RMSE 0.3700 | 1.0s (selection + evaluation + production fits)
+[15:55:17] 23/96 (24%) | turbine 1, horizon 23 | 168 trees | Dec RMSE 0.3768 | 1.7s (selection + evaluation + production fits)
+[15:55:19] 24/96 (25%) | turbine 1, horizon 24 | 156 trees | Dec RMSE 0.3887 | 1.6s (selection + evaluation + production fits)
+[15:55:21] 25/96 (26%) | turbine 1, horizon 25 | 192 trees | Dec RMSE 0.3721 | 1.9s (selection + evaluation + production fits)
+[15:55:23] 26/96 (27%) | turbine 1, horizon 26 | 193 trees | Dec RMSE 0.3563 | 1.9s (selection + evaluation + production fits)
+[15:55:25] 27/96 (28%) | turbine 1, horizon 27 | 189 trees | Dec RMSE 0.3631 | 1.9s (selection + evaluation + production fits)
+[15:55:27] 28/96 (29%) | turbine 1, horizon 28 | 245 trees | Dec RMSE 0.3630 | 2.4s (selection + evaluation + production fits)
+[15:55:28] 29/96 (30%) | turbine 1, horizon 29 | 141 trees | Dec RMSE 0.3741 | 1.5s (selection + evaluation + production fits)
+[15:55:31] 30/96 (31%) | turbine 1, horizon 30 | 252 trees | Dec RMSE 0.3944 | 2.4s (selection + evaluation + production fits)
+[15:55:32] 31/96 (32%) | turbine 1, horizon 31 | 122 trees | Dec RMSE 0.3744 | 1.3s (selection + evaluation + production fits)
+[15:55:34] 32/96 (33%) | turbine 1, horizon 32 | 150 trees | Dec RMSE 0.3601 | 1.6s (selection + evaluation + production fits)
+[15:55:35] 33/96 (34%) | turbine 1, horizon 33 | 153 trees | Dec RMSE 0.3601 | 1.6s (selection + evaluation + production fits)
+[15:55:36] 34/96 (35%) | turbine 1, horizon 34 | 100 trees | Dec RMSE 0.3647 | 1.1s (selection + evaluation + production fits)
+[15:55:37] 35/96 (36%) | turbine 1, horizon 35 | 79 trees | Dec RMSE 0.3758 | 1.0s (selection + evaluation + production fits)
+[15:55:39] 36/96 (38%) | turbine 1, horizon 36 | 208 trees | Dec RMSE 0.3905 | 2.0s (selection + evaluation + production fits)
+[15:55:42] 37/96 (39%) | turbine 1, horizon 37 | 307 trees | Dec RMSE 0.3717 | 2.8s (selection + evaluation + production fits)
+[15:55:46] 38/96 (40%) | turbine 1, horizon 38 | 389 trees | Dec RMSE 0.3533 | 3.5s (selection + evaluation + production fits)
+[15:55:47] 39/96 (41%) | turbine 1, horizon 39 | 159 trees | Dec RMSE 0.3643 | 1.6s (selection + evaluation + production fits)
+[15:55:49] 40/96 (42%) | turbine 1, horizon 40 | 92 trees | Dec RMSE 0.3703 | 1.1s (selection + evaluation + production fits)
+[15:55:51] 41/96 (43%) | turbine 1, horizon 41 | 272 trees | Dec RMSE 0.3796 | 2.6s (selection + evaluation + production fits)
+[15:55:52] 42/96 (44%) | turbine 1, horizon 42 | 64 trees | Dec RMSE 0.3948 | 0.8s (selection + evaluation + production fits)
+[15:55:54] 43/96 (45%) | turbine 1, horizon 43 | 180 trees | Dec RMSE 0.3762 | 1.8s (selection + evaluation + production fits)
+[15:55:55] 44/96 (46%) | turbine 1, horizon 44 | 140 trees | Dec RMSE 0.3634 | 1.5s (selection + evaluation + production fits)
+[15:55:57] 45/96 (47%) | turbine 1, horizon 45 | 130 trees | Dec RMSE 0.3681 | 1.4s (selection + evaluation + production fits)
+[15:55:58] 46/96 (48%) | turbine 1, horizon 46 | 115 trees | Dec RMSE 0.3688 | 1.3s (selection + evaluation + production fits)
+[15:56:01] 47/96 (49%) | turbine 1, horizon 47 | 292 trees | Dec RMSE 0.3768 | 2.7s (selection + evaluation + production fits)
+[15:56:03] 48/96 (50%) | turbine 1, horizon 48 | 244 trees | Dec RMSE 0.3899 | 2.3s (selection + evaluation + production fits)
+[15:56:03] TURBINE 1: selecting SARIMAX with gap_policy=preserve
+[15:56:03]   Fitting SARIMAX(1, 0, 0) on 23904 hourly slots, cutoff 2025-12-01 00:00:00
+[15:56:04]   SARIMAX(1, 0, 0) optimizer iteration 10, 1.0s
+[15:56:05]   SARIMAX(1, 0, 0) optimizer iteration 20, 1.8s
+[15:56:06]   SARIMAX done: converged=True, 2.5s
+[15:56:06]   December SARIMAX(1, 0, 0): RMSE 0.37147
+[15:56:06]   Fitting SARIMAX(2, 0, 1) on 23904 hourly slots, cutoff 2025-12-01 00:00:00
+[15:56:07]   SARIMAX(2, 0, 1) optimizer iteration 10, 1.5s
+[15:56:08]   SARIMAX(2, 0, 1) optimizer iteration 20, 2.6s
+[15:56:09]   SARIMAX done: converged=True, 3.0s
+[15:56:09]   December SARIMAX(2, 0, 1): RMSE 0.37179
+[15:56:09]   Fitting SARIMAX(1, 0, 0) on 24648 hourly slots, cutoff 2026-01-01 00:00:00
+[15:56:10]   SARIMAX(1, 0, 0) optimizer iteration 10, 1.1s
+[15:56:11]   SARIMAX(1, 0, 0) optimizer iteration 20, 2.1s
+[15:56:11]   SARIMAX done: converged=True, 2.3s
+[15:56:11]   Fitting SARIMAX(1, 0, 0) on 25392 hourly slots, cutoff 2026-02-01 00:00:00
+[15:56:12]   SARIMAX(1, 0, 0) optimizer iteration 10, 1.1s
+[15:56:13]   SARIMAX(1, 0, 0) optimizer iteration 20, 2.0s
+[15:56:13]   SARIMAX done: converged=True, 2.4s
+[15:56:15] TURBINE 1: January comparison
+ turbine_id                   model horizon    n      mae     rmse
+          1                catboost      1h   30 0.187946 0.213141
+          1                catboost    1-6h  180 0.225660 0.259140
+          1                catboost   1-48h 1440 0.311916 0.349189
+          1         catboost_direct      1h   30 0.101540 0.153971
+          1         catboost_direct    1-6h  180 0.183696 0.241514
+          1         catboost_direct   1-48h 1440 0.301430 0.343737
+          1 catboost_direct_missing      1h   30 0.100889 0.155085
+          1 catboost_direct_missing    1-6h  180 0.180770 0.244102
+          1 catboost_direct_missing   1-48h 1440 0.303481 0.346286
+          1  sarimax_direct_missing      1h   30 0.106871 0.153607
+          1  sarimax_direct_missing    1-6h  180 0.181385 0.240242
+          1  sarimax_direct_missing   1-48h 1440 0.302318 0.343886
+[15:56:15] TURBINE 2: preparing unchanged 168h context and 48h targets
+[15:56:15]   Feature windows 1/4197 (0%)
+[15:56:17]   Feature windows 501/4197 (12%)
+[15:56:18]   Feature windows 1001/4197 (24%)
+[15:56:20]   Feature windows 1501/4197 (36%)
+[15:56:21]   Feature windows 2001/4197 (48%)
+[15:56:23]   Feature windows 2501/4197 (60%)
+[15:56:24]   Feature windows 3001/4197 (72%)
+[15:56:26]   Feature windows 3501/4197 (83%)
+[15:56:27]   Feature windows 4001/4197 (95%)
+[15:56:28]   Feature windows complete; skipped 17 insufficient-context/target windows
+[15:56:32] 49/96 (51%) | turbine 2, horizon 01 | 451 trees | Dec RMSE 0.1477 | 4.2s (selection + evaluation + production fits)
+[15:56:37] 50/96 (52%) | turbine 2, horizon 02 | 545 trees | Dec RMSE 0.2238 | 5.0s (selection + evaluation + production fits)
+[15:56:42] 51/96 (53%) | turbine 2, horizon 03 | 482 trees | Dec RMSE 0.2778 | 4.4s (selection + evaluation + production fits)
+[15:56:46] 52/96 (54%) | turbine 2, horizon 04 | 425 trees | Dec RMSE 0.3092 | 4.0s (selection + evaluation + production fits)
+[15:56:47] 53/96 (55%) | turbine 2, horizon 05 | 59 trees | Dec RMSE 0.3442 | 0.8s (selection + evaluation + production fits)
+[15:56:49] 54/96 (56%) | turbine 2, horizon 06 | 217 trees | Dec RMSE 0.3648 | 2.1s (selection + evaluation + production fits)
+[15:56:51] 55/96 (57%) | turbine 2, horizon 07 | 193 trees | Dec RMSE 0.3691 | 1.9s (selection + evaluation + production fits)
+[15:56:52] 56/96 (58%) | turbine 2, horizon 08 | 64 trees | Dec RMSE 0.3600 | 0.8s (selection + evaluation + production fits)
+[15:56:53] 57/96 (59%) | turbine 2, horizon 09 | 127 trees | Dec RMSE 0.3600 | 1.4s (selection + evaluation + production fits)
+[15:56:54] 58/96 (60%) | turbine 2, horizon 10 | 91 trees | Dec RMSE 0.3549 | 1.1s (selection + evaluation + production fits)
+[15:56:56] 59/96 (61%) | turbine 2, horizon 11 | 166 trees | Dec RMSE 0.3655 | 1.7s (selection + evaluation + production fits)
+[15:56:57] 60/96 (62%) | turbine 2, horizon 12 | 88 trees | Dec RMSE 0.3866 | 1.0s (selection + evaluation + production fits)
+[15:56:58] 61/96 (64%) | turbine 2, horizon 13 | 81 trees | Dec RMSE 0.3732 | 1.0s (selection + evaluation + production fits)
+[15:56:59] 62/96 (65%) | turbine 2, horizon 14 | 113 trees | Dec RMSE 0.3582 | 1.3s (selection + evaluation + production fits)
+[15:57:01] 63/96 (66%) | turbine 2, horizon 15 | 197 trees | Dec RMSE 0.3585 | 2.0s (selection + evaluation + production fits)
+[15:57:02] 64/96 (67%) | turbine 2, horizon 16 | 96 trees | Dec RMSE 0.3603 | 1.1s (selection + evaluation + production fits)
+[15:57:04] 65/96 (68%) | turbine 2, horizon 17 | 118 trees | Dec RMSE 0.3697 | 1.3s (selection + evaluation + production fits)
+[15:57:05] 66/96 (69%) | turbine 2, horizon 18 | 80 trees | Dec RMSE 0.3873 | 1.0s (selection + evaluation + production fits)
+[15:57:05] 67/96 (70%) | turbine 2, horizon 19 | 65 trees | Dec RMSE 0.3762 | 0.9s (selection + evaluation + production fits)
+[15:57:07] 68/96 (71%) | turbine 2, horizon 20 | 203 trees | Dec RMSE 0.3561 | 2.0s (selection + evaluation + production fits)
+[15:57:09] 69/96 (72%) | turbine 2, horizon 21 | 133 trees | Dec RMSE 0.3551 | 1.4s (selection + evaluation + production fits)
+[15:57:10] 70/96 (73%) | turbine 2, horizon 22 | 143 trees | Dec RMSE 0.3618 | 1.5s (selection + evaluation + production fits)
+[15:57:11] 71/96 (74%) | turbine 2, horizon 23 | 75 trees | Dec RMSE 0.3705 | 0.9s (selection + evaluation + production fits)
+[15:57:14] 72/96 (75%) | turbine 2, horizon 24 | 308 trees | Dec RMSE 0.3895 | 2.9s (selection + evaluation + production fits)
+[15:57:15] 73/96 (76%) | turbine 2, horizon 25 | 112 trees | Dec RMSE 0.3746 | 1.3s (selection + evaluation + production fits)
+[15:57:18] 74/96 (77%) | turbine 2, horizon 26 | 291 trees | Dec RMSE 0.3540 | 2.7s (selection + evaluation + production fits)
+[15:57:20] 75/96 (78%) | turbine 2, horizon 27 | 125 trees | Dec RMSE 0.3558 | 1.4s (selection + evaluation + production fits)
+[15:57:20] 76/96 (79%) | turbine 2, horizon 28 | 75 trees | Dec RMSE 0.3634 | 0.9s (selection + evaluation + production fits)
+[15:57:22] 77/96 (80%) | turbine 2, horizon 29 | 117 trees | Dec RMSE 0.3713 | 1.3s (selection + evaluation + production fits)
+[15:57:23] 78/96 (81%) | turbine 2, horizon 30 | 101 trees | Dec RMSE 0.3896 | 1.2s (selection + evaluation + production fits)
+[15:57:24] 79/96 (82%) | turbine 2, horizon 31 | 78 trees | Dec RMSE 0.3750 | 1.0s (selection + evaluation + production fits)
+[15:57:25] 80/96 (83%) | turbine 2, horizon 32 | 122 trees | Dec RMSE 0.3562 | 1.3s (selection + evaluation + production fits)
+[15:57:26] 81/96 (84%) | turbine 2, horizon 33 | 62 trees | Dec RMSE 0.3580 | 0.8s (selection + evaluation + production fits)
+[15:57:27] 82/96 (85%) | turbine 2, horizon 34 | 72 trees | Dec RMSE 0.3642 | 0.9s (selection + evaluation + production fits)
+[15:57:28] 83/96 (86%) | turbine 2, horizon 35 | 64 trees | Dec RMSE 0.3745 | 0.8s (selection + evaluation + production fits)
+[15:57:29] 84/96 (88%) | turbine 2, horizon 36 | 65 trees | Dec RMSE 0.3879 | 0.9s (selection + evaluation + production fits)
+[15:57:30] 85/96 (89%) | turbine 2, horizon 37 | 171 trees | Dec RMSE 0.3749 | 1.7s (selection + evaluation + production fits)
+[15:57:33] 86/96 (90%) | turbine 2, horizon 38 | 265 trees | Dec RMSE 0.3589 | 2.5s (selection + evaluation + production fits)
+[15:57:34] 87/96 (91%) | turbine 2, horizon 39 | 53 trees | Dec RMSE 0.3642 | 0.8s (selection + evaluation + production fits)
+[15:57:35] 88/96 (92%) | turbine 2, horizon 40 | 99 trees | Dec RMSE 0.3686 | 1.1s (selection + evaluation + production fits)
+[15:57:36] 89/96 (93%) | turbine 2, horizon 41 | 42 trees | Dec RMSE 0.3758 | 0.7s (selection + evaluation + production fits)
+[15:57:37] 90/96 (94%) | turbine 2, horizon 42 | 86 trees | Dec RMSE 0.3902 | 1.0s (selection + evaluation + production fits)
+[15:57:39] 91/96 (95%) | turbine 2, horizon 43 | 232 trees | Dec RMSE 0.3728 | 2.3s (selection + evaluation + production fits)
+[15:57:41] 92/96 (96%) | turbine 2, horizon 44 | 235 trees | Dec RMSE 0.3560 | 2.3s (selection + evaluation + production fits)
+[15:57:42] 93/96 (97%) | turbine 2, horizon 45 | 82 trees | Dec RMSE 0.3604 | 1.0s (selection + evaluation + production fits)
+[15:57:43] 94/96 (98%) | turbine 2, horizon 46 | 49 trees | Dec RMSE 0.3687 | 0.7s (selection + evaluation + production fits)
+[15:57:44] 95/96 (99%) | turbine 2, horizon 47 | 140 trees | Dec RMSE 0.3731 | 1.5s (selection + evaluation + production fits)
+[15:57:45] 96/96 (100%) | turbine 2, horizon 48 | 60 trees | Dec RMSE 0.3919 | 0.8s (selection + evaluation + production fits)
+[15:57:45] TURBINE 2: selecting SARIMAX with gap_policy=preserve
+[15:57:45]   Fitting SARIMAX(1, 0, 0) on 23904 hourly slots, cutoff 2025-12-01 00:00:00
+[15:57:46]   SARIMAX(1, 0, 0) optimizer iteration 10, 1.0s
+[15:57:47]   SARIMAX(1, 0, 0) optimizer iteration 20, 2.0s
+[15:57:48]   SARIMAX(1, 0, 0) optimizer iteration 30, 2.8s
+[15:57:48]   SARIMAX done: converged=True, 2.9s
+[15:57:48]   December SARIMAX(1, 0, 0): RMSE 0.36875
+[15:57:48]   Fitting SARIMAX(2, 0, 1) on 23904 hourly slots, cutoff 2025-12-01 00:00:00
+[15:57:50]   SARIMAX(2, 0, 1) optimizer iteration 10, 1.5s
+[15:57:51]   SARIMAX(2, 0, 1) optimizer iteration 20, 2.6s
+[15:57:52]   SARIMAX(2, 0, 1) optimizer iteration 30, 3.9s
+[15:57:53]   SARIMAX(2, 0, 1) optimizer iteration 40, 5.3s
+[15:57:54]   SARIMAX done: converged=True, 5.8s
+[15:57:54]   December SARIMAX(2, 0, 1): RMSE 0.36900
+[15:57:54]   Fitting SARIMAX(1, 0, 0) on 24648 hourly slots, cutoff 2026-01-01 00:00:00
+[15:57:55]   SARIMAX done: converged=True, 1.1s
+[15:57:55]   Fitting SARIMAX(1, 0, 0) on 25392 hourly slots, cutoff 2026-02-01 00:00:00
+[15:57:56]   SARIMAX(1, 0, 0) optimizer iteration 10, 1.1s
+[15:57:57]   SARIMAX(1, 0, 0) optimizer iteration 20, 1.9s
+[15:57:58]   SARIMAX(1, 0, 0) optimizer iteration 30, 2.8s
+[15:57:59]   SARIMAX done: converged=True, 3.6s
+[15:58:00] TURBINE 2: January comparison
+ turbine_id                   model horizon    n      mae     rmse
+          2                catboost      1h   30 0.196080 0.223614
+          2                catboost    1-6h  180 0.228645 0.265174
+          2                catboost   1-48h 1440 0.312586 0.351561
+          2         catboost_direct      1h   30 0.097258 0.155275
+          2         catboost_direct    1-6h  180 0.188653 0.250019
+          2         catboost_direct   1-48h 1440 0.297360 0.339614
+          2 catboost_direct_missing      1h   30 0.099177 0.154645
+          2 catboost_direct_missing    1-6h  180 0.186566 0.249349
+          2 catboost_direct_missing   1-48h 1440 0.300536 0.343610
+          2  sarimax_direct_missing      1h   30 0.106704 0.156124
+          2  sarimax_direct_missing    1-6h  180 0.180924 0.242430
+          2  sarimax_direct_missing   1-48h 1440 0.301996 0.343048
+[15:58:01] COMPLETE: 96 direct production models saved, elapsed 218.6s

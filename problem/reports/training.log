@@ -1,0 +1,112 @@
+[15:33:28] TURBINE 1: 142,360 raw rows -> 25,392 hourly slots; 23,728 reliable observed targets
+[15:33:28] TURBINE 1: generating 168h-context / 48h-horizon training examples
+[15:33:28]   Feature windows 1/4197 (0%)
+[15:33:29]   Feature windows 501/4197 (12%)
+[15:33:30]   Feature windows 1001/4197 (24%)
+[15:33:32]   Feature windows 1501/4197 (36%)
+[15:33:33]   Feature windows 2001/4197 (48%)
+[15:33:34]   Feature windows 2501/4197 (60%)
+[15:33:35]   Feature windows 3001/4197 (72%)
+[15:33:37]   Feature windows 3501/4197 (83%)
+[15:33:38]   Feature windows 4001/4197 (95%)
+[15:33:39]   Feature windows complete; skipped 252 insufficient-context/target windows
+[15:33:39] TURBINE 1: CatBoost tuning (175,690 train / 5,600 validation rows)
+0:	learn: 0.3577718	test: 0.3897427	best: 0.3897427 (0)	total: 94.8ms	remaining: 1m 15s
+50:	learn: 0.3354860	test: 0.3674774	best: 0.3674774 (50)	total: 1.64s	remaining: 24.1s
+100:	learn: 0.3265361	test: 0.3668057	best: 0.3658628 (65)	total: 3.05s	remaining: 21.1s
+150:	learn: 0.3194386	test: 0.3680835	best: 0.3658628 (65)	total: 4.43s	remaining: 19.1s
+Stopped by overfitting detector  (100 iterations wait)
+
+bestTest = 0.365862811
+bestIteration = 65
+
+Shrink model to first 66 iterations.
+[15:33:44]   CatBoost done: 66 trees, 5.0s
+[15:33:44]   Fitting SARIMAX(1, 0, 0) on 23904 hourly slots, cutoff 2025-12-01 00:00:00
+[15:33:44]   SARIMAX done: converged=True, 0.4s
+[15:33:44] TURBINE 1: December SARIMAX(1, 0, 0): MAE=0.33073, RMSE=0.37115
+[15:33:44]   Fitting SARIMAX(2, 0, 1) on 23904 hourly slots, cutoff 2025-12-01 00:00:00
+[15:33:46]   SARIMAX(2, 0, 1) optimizer iteration 10, 1.6s
+[15:33:47]   SARIMAX(2, 0, 1) optimizer iteration 20, 2.9s
+[15:33:49]   SARIMAX(2, 0, 1) optimizer iteration 30, 4.2s
+[15:33:49]   SARIMAX done: converged=True, 4.7s
+[15:33:49] TURBINE 1: December SARIMAX(2, 0, 1): MAE=0.33300, RMSE=0.37139
+[15:33:49] TURBINE 1: settings locked; refitting through December for January holdout
+0:	learn: 0.3587054	total: 33ms	remaining: 2.14s
+50:	learn: 0.3367242	total: 1.61s	remaining: 473ms
+65:	learn: 0.3334538	total: 2.04s	remaining: 0us
+[15:33:51]   CatBoost done: 66 trees, 2.1s
+[15:33:51]   Fitting SARIMAX(1, 0, 0) on 24648 hourly slots, cutoff 2026-01-01 00:00:00
+[15:33:53]   SARIMAX done: converged=True, 1.2s
+[15:33:53] TURBINE 1: JANUARY HOLDOUT
+ turbine_id        model horizon    n  origins      mae     rmse
+          1     catboost   1-48h 1440       30 0.311916 0.349189
+          1 context_mean   1-48h 1440       30 0.295151 0.348842
+          1  persistence   1-48h 1440       30 0.334498 0.457998
+          1      sarimax   1-48h 1440       30 0.304715 0.346199
+[15:33:53] TURBINE 1: fitting production models on all available data through January
+0:	learn: 0.3582096	total: 37ms	remaining: 2.4s
+50:	learn: 0.3365187	total: 1.7s	remaining: 501ms
+65:	learn: 0.3334839	total: 2.16s	remaining: 0us
+[15:33:55]   CatBoost done: 66 trees, 2.3s
+[15:33:55]   Fitting SARIMAX(1, 0, 0) on 25392 hourly slots, cutoff 2026-02-01 00:00:00
+[15:33:56]   SARIMAX(1, 0, 0) optimizer iteration 10, 1.1s
+[15:33:57]   SARIMAX(1, 0, 0) optimizer iteration 20, 2.0s
+[15:33:58]   SARIMAX done: converged=True, 3.0s
+[15:33:58] TURBINE 1: production models saved
+[15:33:58] TURBINE 2: 149,499 raw rows -> 25,392 hourly slots; 24,919 reliable observed targets
+[15:33:58] TURBINE 2: generating 168h-context / 48h-horizon training examples
+[15:33:58]   Feature windows 1/4197 (0%)
+[15:34:00]   Feature windows 501/4197 (12%)
+[15:34:01]   Feature windows 1001/4197 (24%)
+[15:34:02]   Feature windows 1501/4197 (36%)
+[15:34:04]   Feature windows 2001/4197 (48%)
+[15:34:05]   Feature windows 2501/4197 (60%)
+[15:34:07]   Feature windows 3001/4197 (72%)
+[15:34:08]   Feature windows 3501/4197 (83%)
+[15:34:09]   Feature windows 4001/4197 (95%)
+[15:34:10]   Feature windows complete; skipped 17 insufficient-context/target windows
+[15:34:10] TURBINE 2: CatBoost tuning (185,334 train / 5,568 validation rows)
+0:	learn: 0.3556740	test: 0.3851992	best: 0.3851992 (0)	total: 36.7ms	remaining: 29.3s
+50:	learn: 0.3333285	test: 0.3620208	best: 0.3620208 (50)	total: 1.63s	remaining: 24s
+100:	learn: 0.3241424	test: 0.3613689	best: 0.3606870 (84)	total: 3.07s	remaining: 21.2s
+150:	learn: 0.3175813	test: 0.3626361	best: 0.3606870 (84)	total: 4.51s	remaining: 19.4s
+Stopped by overfitting detector  (100 iterations wait)
+
+bestTest = 0.3606870242
+bestIteration = 84
+
+Shrink model to first 85 iterations.
+[15:34:16]   CatBoost done: 85 trees, 5.6s
+[15:34:16]   Fitting SARIMAX(1, 0, 0) on 23904 hourly slots, cutoff 2025-12-01 00:00:00
+[15:34:16]   SARIMAX done: converged=True, 0.3s
+[15:34:16] TURBINE 2: December SARIMAX(1, 0, 0): MAE=0.32911, RMSE=0.36865
+[15:34:16]   Fitting SARIMAX(2, 0, 1) on 23904 hourly slots, cutoff 2025-12-01 00:00:00
+[15:34:18]   SARIMAX(2, 0, 1) optimizer iteration 10, 1.6s
+[15:34:18]   SARIMAX done: converged=True, 2.0s
+[15:34:18] TURBINE 2: December SARIMAX(2, 0, 1): MAE=0.33129, RMSE=0.36883
+[15:34:18] TURBINE 2: settings locked; refitting through December for January holdout
+0:	learn: 0.3565388	total: 37.7ms	remaining: 3.17s
+50:	learn: 0.3343356	total: 1.7s	remaining: 1.13s
+84:	learn: 0.3277591	total: 2.72s	remaining: 0us
+[15:34:21]   CatBoost done: 85 trees, 2.8s
+[15:34:21]   Fitting SARIMAX(1, 0, 0) on 24648 hourly slots, cutoff 2026-01-01 00:00:00
+[15:34:22]   SARIMAX done: converged=True, 1.1s
+[15:34:23] TURBINE 2: JANUARY HOLDOUT
+ turbine_id        model horizon    n  origins      mae     rmse
+          2     catboost   1-48h 1440       30 0.312586 0.351561
+          2 context_mean   1-48h 1440       30 0.294005 0.347376
+          2  persistence   1-48h 1440       30 0.331670 0.455394
+          2      sarimax   1-48h 1440       30 0.302174 0.343242
+[15:34:23] TURBINE 2: fitting production models on all available data through January
+0:	learn: 0.3559840	total: 39.2ms	remaining: 3.29s
+50:	learn: 0.3345988	total: 1.79s	remaining: 1.19s
+84:	learn: 0.3280649	total: 2.82s	remaining: 0us
+[15:34:25]   CatBoost done: 85 trees, 2.9s
+[15:34:25]   Fitting SARIMAX(1, 0, 0) on 25392 hourly slots, cutoff 2026-02-01 00:00:00
+[15:34:27]   SARIMAX(1, 0, 0) optimizer iteration 10, 1.1s
+[15:34:27]   SARIMAX(1, 0, 0) optimizer iteration 20, 1.9s
+[15:34:28]   SARIMAX(1, 0, 0) optimizer iteration 30, 2.9s
+[15:34:29]   SARIMAX done: converged=True, 3.4s
+[15:34:29] TURBINE 2: production models saved
+[15:34:44] COMPLETE: four production models saved; total elapsed 76.0s
