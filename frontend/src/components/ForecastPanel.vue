@@ -81,6 +81,7 @@ const rotatingAgentStatus = useRotatingAgentMessage(
 )
 const statusMessage = computed(() => {
   if (rotatingAgentStatus.message.value) return rotatingAgentStatus.message.value
+  if (props.forecastStatus === 'awaiting-confirmation') return props.t.waitingForConfirmation
   if (props.forecastStatus === 'error') return props.forecastError
   if (props.forecastStatus === 'succeeded' && !hasForecast.value) return props.t.unsupportedForecastShape
   return props.t.waitingForForecast
