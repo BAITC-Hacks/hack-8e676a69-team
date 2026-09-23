@@ -1,9 +1,11 @@
 <script setup>
+import { computed } from 'vue'
 import { CalendarDays, Factory, Languages, RefreshCw, Zap } from '@lucide/vue'
+import { useRotatingAgentMessage } from '../composables/useRotatingAgentMessage'
 import { languageOptions } from '../i18n/messages'
 import { localized } from '../utils/localized'
 
-defineProps({
+const props = defineProps({
   bootstrapError: {
     type: String,
     default: '',
@@ -57,6 +59,21 @@ const emit = defineEmits([
   'update:selectedWindFarmId',
   'update:startDate',
 ])
+
+const rotatingAgentStatus = useRotatingAgentMessage(
+  computed(() => props.forecastStatus),
+  computed(() => props.t),
+)
+
+const statusMessage = computed(() => {
+  if (props.bootstrapStatus === 'loading') return props.t.loadingBootstrap
+  if (props.bootstrapStatus === 'error') return props.bootstrapError
+  if (props.forecastStatus === 'idle') return props.t.waitingForSelection
+  if (rotatingAgentStatus.message.value) return rotatingAgentStatus.message.value
+  if (props.forecastStatus === 'succeeded') return props.t.forecastReady
+
+  return props.forecastError
+})
 </script>
 
 <template>
@@ -138,15 +155,20 @@ const emit = defineEmits([
         ></span>
         <div>
           <strong>{{ t.agentStatus }}</strong>
-          <small v-if="bootstrapStatus === 'loading'">{{ t.loadingBootstrap }}</small>
-          <small v-else-if="bootstrapStatus === 'error'">{{ bootstrapError }}</small>
-          <small v-else-if="forecastStatus === 'idle'">{{ t.waitingForSelection }}</small>
-          <small v-else-if="forecastStatus === 'submitting'">{{ t.creatingTicket }}</small>
-          <small v-else-if="forecastStatus === 'preparing'">{{ t.preparingData }}</small>
-          <small v-else-if="forecastStatus === 'pending'">{{ t.aiAgentsThinking }}</small>
-          <small v-else-if="forecastStatus === 'succeeded'">{{ t.forecastReady }}</small>
-          <small v-else>{{ forecastError }}</small>
+          <Transition name="status-message" mode="out-in">
+            <small :key="statusMessage">{{ statusMessage }}</small>
+          </Transition>
         </div>
+      </div>
+
+      <div
+        v-if="['submitting', 'preparing', 'pending'].includes(forecastStatus)"
+        class="agent-steps"
+        aria-hidden="true"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
       </div>
 
       <code v-if="ticketId">{{ t.ticket }}: {{ ticketId }}</code>
@@ -385,6 +407,45 @@ input:disabled {
   overflow-wrap: anywhere;
 }
 
+.agent-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  height: 5px;
+}
+
+.agent-steps span {
+  background: linear-gradient(90deg, rgba(21, 122, 101, 0.2), rgba(21, 122, 101, 0.86));
+  border-radius: 999px;
+  transform-origin: left center;
+  animation: agentStep 1.35s ease-in-out infinite;
+}
+
+.agent-steps span:nth-child(2) {
+  animation-delay: 0.16s;
+}
+
+.agent-steps span:nth-child(3) {
+  animation-delay: 0.32s;
+}
+
+.status-message-enter-active,
+.status-message-leave-active {
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
+}
+
+.status-message-enter-from {
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+.status-message-leave-to {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+
 .status-section code {
   display: block;
   overflow: hidden;
@@ -422,6 +483,19 @@ input:disabled {
   50% {
     opacity: 1;
     transform: scale(1.12);
+  }
+}
+
+@keyframes agentStep {
+  0%,
+  100% {
+    opacity: 0.42;
+    transform: scaleX(0.36);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scaleX(1);
   }
 }
 

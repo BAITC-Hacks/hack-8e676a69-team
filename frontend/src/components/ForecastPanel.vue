@@ -14,6 +14,7 @@ import {
   TooltipComponent,
 } from 'echarts/components'
 import { CanvasRenderer } from 'echarts/renderers'
+import { useRotatingAgentMessage } from '../composables/useRotatingAgentMessage'
 import { formatPower, toForecastSeries, valueAtHour } from '../utils/forecastPlot'
 
 use([
@@ -74,10 +75,12 @@ const forecastSeries = computed(() =>
 
 const hasForecast = computed(() => forecastSeries.value.length > 0)
 const isWorking = computed(() => ['submitting', 'preparing', 'pending'].includes(props.forecastStatus))
+const rotatingAgentStatus = useRotatingAgentMessage(
+  computed(() => props.forecastStatus),
+  computed(() => props.t),
+)
 const statusMessage = computed(() => {
-  if (props.forecastStatus === 'submitting') return props.t.creatingTicket
-  if (props.forecastStatus === 'preparing') return props.t.preparingData
-  if (props.forecastStatus === 'pending') return props.t.aiAgentsThinking
+  if (rotatingAgentStatus.message.value) return rotatingAgentStatus.message.value
   if (props.forecastStatus === 'error') return props.forecastError
   if (props.forecastStatus === 'succeeded' && !hasForecast.value) return props.t.unsupportedForecastShape
   return props.t.waitingForForecast
@@ -410,10 +413,13 @@ watch(
     <div v-if="forecastStatus !== 'succeeded' || !hasForecast" class="agent-status">
       <span class="thinking-icon" :class="{ active: isWorking }">
         <BrainCircuit :size="18" />
+        <span v-if="isWorking" class="thinking-orbit"></span>
       </span>
       <div>
         <strong>{{ t.agentStatus }}</strong>
-        <small>{{ statusMessage }}</small>
+        <Transition name="status-message" mode="out-in">
+          <small :key="statusMessage">{{ statusMessage }}</small>
+        </Transition>
       </div>
       <code v-if="ticketId">{{ t.ticket }}: {{ ticketId }}</code>
     </div>
@@ -478,6 +484,7 @@ watch(
 }
 
 .thinking-icon {
+  position: relative;
   display: grid;
   width: 36px;
   height: 36px;
@@ -487,8 +494,22 @@ watch(
   border-radius: 8px;
 }
 
+.thinking-icon svg {
+  position: relative;
+  z-index: 1;
+}
+
 .thinking-icon.active svg {
   animation: think 1.4s ease-in-out infinite;
+}
+
+.thinking-orbit {
+  position: absolute;
+  inset: -4px;
+  border: 1px solid rgba(21, 122, 101, 0.28);
+  border-top-color: rgba(21, 122, 101, 0.95);
+  border-radius: 10px;
+  animation: orbitStatus 1.1s linear infinite;
 }
 
 .agent-status strong,
@@ -507,6 +528,23 @@ watch(
   font-size: 12px;
   line-height: 1.35;
   overflow-wrap: anywhere;
+}
+
+.status-message-enter-active,
+.status-message-leave-active {
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
+}
+
+.status-message-enter-from {
+  opacity: 0;
+  transform: translateY(5px);
+}
+
+.status-message-leave-to {
+  opacity: 0;
+  transform: translateY(-5px);
 }
 
 .agent-status code {
@@ -774,6 +812,12 @@ watch(
 
   50% {
     transform: scale(1.08);
+  }
+}
+
+@keyframes orbitStatus {
+  to {
+    transform: rotate(1turn);
   }
 }
 </style>

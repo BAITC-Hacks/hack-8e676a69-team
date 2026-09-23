@@ -26,6 +26,20 @@ export const messages = {
     creatingTicket: 'Creating backend ticket...',
     preparingData: 'Preparing weather input for ML worker...',
     aiAgentsThinking: 'AI agents are calculating. Please wait.',
+    agentWorkMessages: {
+      preparing: [
+        'Preparing the weather bundle for the agents...',
+        'Packing wind, temperature, and horizon into one clean task...',
+        'Checking that the turbine story starts at the right hour...',
+      ],
+      pending: [
+        'AI agents are comparing forecast paths...',
+        'One agent is reading the wind, another is arguing with the model...',
+        'The agents are on the route. Forecast cargo is in transit...',
+        'Model council is in session. Minutes are being taken by math...',
+        'Waiting for the worker to publish the final response...',
+      ],
+    },
     forecastReady: 'Forecast is ready',
     unsupportedForecastShape: 'The worker returned JSON, but no chart series were found.',
     agentStatus: 'Agent status',
@@ -70,6 +84,20 @@ export const messages = {
     creatingTicket: 'Создаем ticket в backend...',
     preparingData: 'Готовим погодные данные для ML-worker...',
     aiAgentsThinking: 'ИИ-агенты считают прогноз. Пожалуйста, подождите.',
+    agentWorkMessages: {
+      preparing: [
+        'Собираем погодный пакет для ИИ-агентов...',
+        'Укладываем ветер, температуру и горизонт в аккуратную задачу...',
+        'Проверяем, что история турбины начинается с правильного часа...',
+      ],
+      pending: [
+        'ИИ-агенты считают прогноз. Пожалуйста, подождите.',
+        'ИИ-агенты в пути: несут прогноз через backend-коридор...',
+        'Один агент слушает ветер, второй спорит с моделью...',
+        'Совет моделей заседает. Протокол ведет математика...',
+        'Ждем, пока worker положит финальный ответ на место...',
+      ],
+    },
     forecastReady: 'Прогноз готов',
     unsupportedForecastShape: 'Worker вернул JSON, но серии для графика не найдены.',
     agentStatus: 'Статус агентов',
@@ -114,6 +142,20 @@ export const messages = {
     creatingTicket: 'Backend ticket жасалуда...',
     preparingData: 'ML-worker үшін ауа райы деректері дайындалуда...',
     aiAgentsThinking: 'AI агенттері болжамды есептеп жатыр. Күте тұрыңыз.',
+    agentWorkMessages: {
+      preparing: [
+        'AI агенттері үшін ауа райы пакеті дайындалуда...',
+        'Жел, температура және көкжиек бір тапсырмаға жиналып жатыр...',
+        'Турбина тарихы дұрыс сағаттан басталғанын тексеріп жатырмыз...',
+      ],
+      pending: [
+        'AI агенттері болжамды есептеп жатыр. Күте тұрыңыз.',
+        'AI агенттері жолда: болжам backend дәлізімен келе жатыр...',
+        'Бір агент желді тыңдап, екіншісі модельмен келісіп жатыр...',
+        'Модельдер кеңесі жиналды. Есепті математика жүргізіп отыр...',
+        'Worker соңғы жауапты жариялағанын күтіп отырмыз...',
+      ],
+    },
     forecastReady: 'Болжам дайын',
     unsupportedForecastShape: 'Worker JSON қайтарды, бірақ график сериялары табылмады.',
     agentStatus: 'Агенттер күйі',
