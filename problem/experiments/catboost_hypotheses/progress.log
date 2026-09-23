@@ -1,0 +1,22 @@
+[16:09:55] Turbine 1: building common contexts (no filling)
+[16:09:56] Turbine 1, 2025-04-01: train origins=2515, validation=117, test=29
+[16:09:56]   START direct_base
+[16:10:13]     direct_base: 12/48 horizons (17s)
+[16:10:28]     direct_base: 24/48 horizons (32s)
+[16:10:43]     direct_base: 36/48 horizons (47s)
+[16:10:53]     direct_base: 48/48 horizons (57s)
+[16:10:53]   DONE direct_base: MAE=0.3166, RMSE=0.3575, 57.4s
+[16:10:53]   START direct_power
+[16:10:59]     direct_power: 12/48 horizons (6s)
+[16:11:03]     direct_power: 24/48 horizons (10s)
+[16:11:06]     direct_power: 36/48 horizons (13s)
+[16:11:09]     direct_power: 48/48 horizons (16s)
+[16:11:09]   DONE direct_power: MAE=0.3186, RMSE=0.3577, 15.9s
+[16:11:09]   START direct_rich
+[16:11:49]     direct_rich: 12/48 horizons (40s)
+[16:12:26]     direct_rich: 24/48 horizons (77s)
+[16:13:01]     direct_rich: 36/48 horizons (112s)
+[16:13:34]     direct_rich: 48/48 horizons (145s)
+[16:13:34]   DONE direct_rich: MAE=0.3130, RMSE=0.3556, 145.5s
+[16:13:34]   START direct_long
+[16:14:11]     direct_long: 12/48 horizons (37s)

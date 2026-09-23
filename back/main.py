@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from contextlib import asynccontextmanager
 from datetime import datetime, time, timedelta
 
@@ -28,6 +29,27 @@ def create_app(settings: Settings | None = None, *, datasets=None, weather=None)
         async with httpx.AsyncClient(follow_redirects=False, headers={"User-Agent": "HackAlem-Wind-Backend/1.0"}) as client:
             provider = weather or OpenMeteo(settings, client)
             app.state.tickets = TicketStore(settings, InputBuilder(settings, repository, provider))
+            stop_worker = asyncio.Event()
+            worker_task = None
+            if settings.inference_enabled:
+                from inference.forecast import ForecastPipeline
+                from inference.supervisor import Supervisor
+                pipeline = await asyncio.to_thread(ForecastPipeline, settings.inference_model_dir,
+                                                  settings.turbine_timezone, settings.inference_threads)
+                app.state.inference = Supervisor(pipeline, settings.tickets_dir, settings.inference_workers)
+
+                async def work():
+                    while not stop_worker.is_set():
+                        try:
+                            await asyncio.to_thread(app.state.inference.run_once)
+                        except OSError:
+                            logging.getLogger(__name__).exception('Ticket directory temporarily unavailable')
+                        try:
+                            await asyncio.wait_for(stop_worker.wait(), timeout=.25)
+                        except asyncio.TimeoutError:
+                            pass
+
+                worker_task = asyncio.create_task(work(), name='catboost-ticket-worker')
             cleanup = asyncio.create_task(app.state.tickets.cleanup_loop())
             try:
                 yield
@@ -35,6 +57,9 @@ def create_app(settings: Settings | None = None, *, datasets=None, weather=None)
                 cleanup.cancel()
                 await asyncio.gather(cleanup, return_exceptions=True)
                 await app.state.tickets.close()
+                stop_worker.set()
+                if worker_task is not None:
+                    await worker_task
 
     app = FastAPI(
         title="HackAlem wind forecast backend",

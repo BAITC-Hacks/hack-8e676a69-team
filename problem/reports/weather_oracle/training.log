@@ -1,0 +1,50 @@
+[16:19:48] LOCAL DATA ONLY. Recorded future weather is an oracle input, not a weather forecast.
+[16:19:48] TURBINE 1/2: preparing one shared model for all 48 horizons
+[16:19:48]   111 features; 175690 train rows, 5600 validation rows
+[16:19:48]   [1/3] Tree-count selection on December 2025
+0:	learn: 0.3455340	test: 0.3762068	best: 0.3762068 (0)	total: 97.4ms	remaining: 1m 17s
+100:	learn: 0.0559083	test: 0.0550282	best: 0.0549828 (97)	total: 3.24s	remaining: 22.4s
+Stopped by overfitting detector  (100 iterations wait)
+
+bestTest = 0.05498275076
+bestIteration = 97
+
+Shrink model to first 98 iterations.
+[16:19:54]   [2/3] Evaluation refit before January: 98 trees
+0:	learn: 0.3464914	total: 40.6ms	remaining: 3.94s
+97:	learn: 0.0555638	total: 3.21s	remaining: 0us
+[16:19:58]   [3/3] Final offline refit through January 31
+0:	learn: 0.3459183	total: 41.7ms	remaining: 4.05s
+97:	learn: 0.0557554	total: 3.3s	remaining: 0us
+[16:20:01]   January results:
+ turbine_id                   model horizon    n      mae     rmse
+          1                catboost   1-48h 1440 0.311916 0.349189
+          1 catboost_direct_missing   1-48h 1440 0.303481 0.346286
+          1 catboost_weather_oracle   1-48h 1440 0.027368 0.050430
+          1            context_mean   1-48h 1440 0.295151 0.348842
+          1             persistence   1-48h 1440 0.334498 0.457998
+[16:20:01] TURBINE 2/2: preparing one shared model for all 48 horizons
+[16:20:01]   111 features; 185334 train rows, 5568 validation rows
+[16:20:01]   [1/3] Tree-count selection on December 2025
+0:	learn: 0.3432599	test: 0.3718278	best: 0.3718278 (0)	total: 40.4ms	remaining: 32.3s
+100:	learn: 0.0472718	test: 0.0879021	best: 0.0876946 (88)	total: 3.43s	remaining: 23.7s
+Stopped by overfitting detector  (100 iterations wait)
+
+bestTest = 0.08769462546
+bestIteration = 88
+
+Shrink model to first 89 iterations.
+[16:20:07]   [2/3] Evaluation refit before January: 89 trees
+0:	learn: 0.3441149	total: 42.2ms	remaining: 3.72s
+88:	learn: 0.0510907	total: 3.21s	remaining: 0us
+[16:20:11]   [3/3] Final offline refit through January 31
+0:	learn: 0.3436383	total: 44.4ms	remaining: 3.91s
+88:	learn: 0.0518494	total: 3.66s	remaining: 0us
+[16:20:15]   January results:
+ turbine_id                   model horizon    n      mae     rmse
+          2                catboost   1-48h 1440 0.312586 0.351561
+          2 catboost_direct_missing   1-48h 1440 0.300536 0.343610
+          2 catboost_weather_oracle   1-48h 1440 0.031305 0.066365
+          2            context_mean   1-48h 1440 0.294005 0.347376
+          2             persistence   1-48h 1440 0.331670 0.455394
+[16:20:15] COMPLETE: 2 single-model production bundles; 26.5s

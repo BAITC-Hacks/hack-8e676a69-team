@@ -82,10 +82,10 @@ class TicketStore:
             "poll_url": f"/api/tickets/{ticket_id}",
             "input": {
                 "turbine_id": request.turbine_id,
-                "history_start": (start - timedelta(days=request.history_days)).astimezone(self.settings.timezone).isoformat(),
+                "history_start": (start - timedelta(days=request.context_days)).astimezone(self.settings.timezone).isoformat(),
                 "horizon_start": start.astimezone(self.settings.timezone).isoformat(),
                 "horizon_end_exclusive": (start + timedelta(hours=request.horizon_hours)).astimezone(self.settings.timezone).isoformat(),
-                "history_days": request.history_days,
+                "history_days": request.context_days,
                 "timezone": self.settings.turbine_timezone,
                 "prediction_hours": 48,
                 "use_dataset_for_horizon": self.settings.use_dataset_for_horizon,
