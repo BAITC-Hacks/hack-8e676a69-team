@@ -1,9 +1,25 @@
 <script setup>
-import { CalendarDays, Factory, Languages, Zap } from '@lucide/vue'
+import { CalendarDays, Factory, Languages, RefreshCw, Zap } from '@lucide/vue'
 import { languageOptions } from '../i18n/messages'
 import { localized } from '../utils/localized'
 
 defineProps({
+  bootstrapError: {
+    type: String,
+    default: '',
+  },
+  bootstrapStatus: {
+    type: String,
+    required: true,
+  },
+  forecastError: {
+    type: String,
+    default: '',
+  },
+  forecastStatus: {
+    type: String,
+    required: true,
+  },
   language: {
     type: String,
     required: true,
@@ -20,6 +36,10 @@ defineProps({
     type: Object,
     required: true,
   },
+  ticketId: {
+    type: String,
+    default: '',
+  },
   visibleTurbines: {
     type: Array,
     required: true,
@@ -31,6 +51,7 @@ defineProps({
 })
 
 const emit = defineEmits([
+  'retry-bootstrap',
   'select-turbine',
   'update:language',
   'update:selectedWindFarmId',
@@ -76,6 +97,7 @@ const emit = defineEmits([
         <span>{{ t.windFarmLabel }}</span>
         <select
           :value="selectedWindFarmId"
+          :disabled="bootstrapStatus !== 'ready'"
           @change="emit('update:selectedWindFarmId', $event.target.value)"
         >
           <option v-for="windFarm in windFarms" :key="windFarm.id" :value="windFarm.id">
@@ -94,6 +116,7 @@ const emit = defineEmits([
         <span>{{ t.calculationStartDate }}</span>
         <input
           :value="startDate"
+          :disabled="bootstrapStatus !== 'ready'"
           type="date"
           @input="emit('update:startDate', $event.target.value)"
         />
@@ -111,6 +134,7 @@ const emit = defineEmits([
         :key="turbine.id"
         type="button"
         class="asset-item"
+        :disabled="bootstrapStatus !== 'ready'"
         @click="emit('select-turbine', turbine.id)"
       >
         <span class="swatch"></span>
@@ -118,6 +142,42 @@ const emit = defineEmits([
           <strong>{{ localized(turbine.name, language) }}</strong>
           <small>{{ t.coordinates }}: {{ turbine.coordLabel }}</small>
         </span>
+      </button>
+    </section>
+
+    <section class="status-section" aria-live="polite">
+      <div class="status-row">
+        <span
+          class="status-dot"
+          :class="{
+            loading: bootstrapStatus === 'loading' || ['submitting', 'preparing', 'pending'].includes(forecastStatus),
+            ready: forecastStatus === 'succeeded',
+            error: bootstrapStatus === 'error' || forecastStatus === 'error',
+          }"
+        ></span>
+        <div>
+          <strong>{{ t.agentStatus }}</strong>
+          <small v-if="bootstrapStatus === 'loading'">{{ t.loadingBootstrap }}</small>
+          <small v-else-if="bootstrapStatus === 'error'">{{ bootstrapError }}</small>
+          <small v-else-if="forecastStatus === 'idle'">{{ t.waitingForSelection }}</small>
+          <small v-else-if="forecastStatus === 'submitting'">{{ t.creatingTicket }}</small>
+          <small v-else-if="forecastStatus === 'preparing'">{{ t.preparingData }}</small>
+          <small v-else-if="forecastStatus === 'pending'">{{ t.aiAgentsThinking }}</small>
+          <small v-else-if="forecastStatus === 'succeeded'">{{ t.forecastReady }}</small>
+          <small v-else>{{ forecastError }}</small>
+        </div>
+      </div>
+
+      <code v-if="ticketId">{{ t.ticket }}: {{ ticketId }}</code>
+
+      <button
+        v-if="bootstrapStatus === 'error'"
+        type="button"
+        class="retry-button"
+        @click="emit('retry-bootstrap')"
+      >
+        <RefreshCw :size="15" />
+        {{ t.retry }}
       </button>
     </section>
   </aside>
@@ -253,6 +313,13 @@ p {
   transform: translateY(-1px);
 }
 
+.asset-item:disabled,
+select:disabled,
+input:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
 .asset-item strong,
 .asset-item small {
   display: block;
@@ -281,6 +348,100 @@ p {
   background: #1c9f88;
   border-radius: 999px;
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.8);
+}
+
+.status-section {
+  display: grid;
+  gap: 10px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+.status-row {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  margin-top: 5px;
+  background: #9aa6a0;
+  border-radius: 999px;
+}
+
+.status-dot.loading {
+  background: #d5961f;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.status-dot.ready {
+  background: var(--accent);
+}
+
+.status-dot.error {
+  background: #c84d3c;
+}
+
+.status-row strong,
+.status-row small {
+  display: block;
+}
+
+.status-row strong {
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.status-row small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.status-section code {
+  display: block;
+  overflow: hidden;
+  padding: 8px 9px;
+  color: #34413d;
+  background: #eef3f0;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.retry-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  color: #ffffff;
+  background: var(--accent);
+  border: 0;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.45;
+    transform: scale(0.9);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.12);
+  }
 }
 
 @media (max-width: 880px) {

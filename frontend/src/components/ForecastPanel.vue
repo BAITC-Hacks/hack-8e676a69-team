@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
-import { Wind } from '@lucide/vue'
+import { BrainCircuit, Wind } from '@lucide/vue'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
 import { LineChart } from 'echarts/charts'
@@ -29,6 +29,26 @@ use([
 ])
 
 const props = defineProps({
+  forecastError: {
+    type: String,
+    default: '',
+  },
+  forecastStatus: {
+    type: String,
+    required: true,
+  },
+  predictionHours: {
+    type: Number,
+    default: 48,
+  },
+  rawForecast: {
+    type: [Object, Array],
+    default: null,
+  },
+  ticketId: {
+    type: String,
+    default: '',
+  },
   selectedTurbine: {
     type: Object,
     required: true,
@@ -41,14 +61,47 @@ const props = defineProps({
 
 const chartRef = ref(null)
 const selectedHour = ref(24)
-const horizonOptions = [0, 12, 24, 36, 48]
+const horizonOptions = computed(() =>
+  [0, 12, 24, 36, 48].filter((hour) => hour <= props.predictionHours),
+)
 
 const forecastSeries = computed(() =>
-  toForecastSeries(props.selectedTurbine.agentForecasts, props.t.agentNames).map((series) => ({
+  toForecastSeries(props.selectedTurbine.agentForecasts ?? [], props.t.agentNames).map((series) => ({
     ...series,
     selectedValue: valueAtHour(series.points, selectedHour.value),
   })),
 )
+
+const hasForecast = computed(() => forecastSeries.value.length > 0)
+const isWorking = computed(() => ['submitting', 'preparing', 'pending'].includes(props.forecastStatus))
+const statusMessage = computed(() => {
+  if (props.forecastStatus === 'submitting') return props.t.creatingTicket
+  if (props.forecastStatus === 'preparing') return props.t.preparingData
+  if (props.forecastStatus === 'pending') return props.t.aiAgentsThinking
+  if (props.forecastStatus === 'error') return props.forecastError
+  if (props.forecastStatus === 'succeeded' && !hasForecast.value) return props.t.unsupportedForecastShape
+  return props.t.waitingForForecast
+})
+const rawPreview = computed(() =>
+  props.rawForecast ? JSON.stringify(props.rawForecast, null, 2).slice(0, 1600) : '',
+)
+const yAxisBounds = computed(() => {
+  const values = forecastSeries.value.flatMap((series) => series.hourlyPoints.map((point) => point[1]))
+  const min = Math.min(...values)
+  const max = Math.max(...values)
+
+  if (!Number.isFinite(min) || !Number.isFinite(max)) {
+    return { min: 0, max: 1 }
+  }
+
+  const range = Math.max(max - min, 0.2)
+  const padding = range * 0.16
+
+  return {
+    min: Number(Math.max(0, min - padding).toFixed(2)),
+    max: Number((max + padding).toFixed(2)),
+  }
+})
 
 const chartOption = computed(() => ({
   animationDuration: 650,
@@ -134,7 +187,7 @@ const chartOption = computed(() => ({
   xAxis: {
     type: 'value',
     min: 0,
-    max: 48,
+    max: props.predictionHours,
     interval: 6,
     name: props.t.forecastTimeAxis,
     nameLocation: 'middle',
@@ -162,9 +215,8 @@ const chartOption = computed(() => ({
   },
   yAxis: {
     type: 'value',
-    min: 0.4,
-    max: 0.9,
-    interval: 0.1,
+    min: yAxisBounds.value.min,
+    max: yAxisBounds.value.max,
     name: props.t.forecastPowerAxis,
     nameGap: 16,
     nameTextStyle: {
@@ -289,7 +341,7 @@ const chartOption = computed(() => ({
 }))
 
 function selectHour(hour) {
-  selectedHour.value = Number(hour)
+  selectedHour.value = Math.min(props.predictionHours, Math.max(0, Number(hour)))
 
   nextTick(() => {
     chartRef.value?.dispatchAction({
@@ -311,6 +363,11 @@ function handleChartClick(params) {
 watch(
   () => props.selectedTurbine.id,
   () => selectHour(24),
+)
+
+watch(
+  () => props.predictionHours,
+  () => selectHour(selectedHour.value),
 )
 </script>
 
@@ -350,17 +407,37 @@ watch(
       </div>
     </div>
 
+    <div v-if="forecastStatus !== 'succeeded' || !hasForecast" class="agent-status">
+      <span class="thinking-icon" :class="{ active: isWorking }">
+        <BrainCircuit :size="18" />
+      </span>
+      <div>
+        <strong>{{ t.agentStatus }}</strong>
+        <small>{{ statusMessage }}</small>
+      </div>
+      <code v-if="ticketId">{{ t.ticket }}: {{ ticketId }}</code>
+    </div>
+
     <div class="chart-surface">
       <VChart
+        v-if="hasForecast"
         ref="chartRef"
         class="forecast-echart"
         :option="chartOption"
         autoresize
         @click="handleChartClick"
       />
+      <div v-else class="chart-empty">
+        <span>{{ statusMessage }}</span>
+      </div>
     </div>
 
-    <div class="forecast-values" :aria-label="t.horizonValue">
+    <details v-if="rawPreview && !hasForecast" class="raw-response">
+      <summary>{{ t.rawResponse }}</summary>
+      <pre>{{ rawPreview }}</pre>
+    </details>
+
+    <div v-if="hasForecast" class="forecast-values" :aria-label="t.horizonValue">
       <article
         v-for="series in forecastSeries"
         :key="series.id"
@@ -387,6 +464,62 @@ watch(
   background: #f8faf9;
   border-top: 1px solid var(--line);
   box-shadow: 0 -14px 35px rgba(34, 47, 42, 0.08);
+}
+
+.agent-status {
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid #dce4e0;
+  border-radius: var(--radius);
+}
+
+.thinking-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 8px;
+}
+
+.thinking-icon.active svg {
+  animation: think 1.4s ease-in-out infinite;
+}
+
+.agent-status strong,
+.agent-status small {
+  display: block;
+}
+
+.agent-status strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.agent-status small {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.agent-status code {
+  max-width: 280px;
+  overflow: hidden;
+  padding: 7px 9px;
+  color: #34413d;
+  background: #eef3f0;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .forecast-header {
@@ -480,6 +613,42 @@ watch(
   height: 100%;
 }
 
+.chart-empty {
+  display: grid;
+  height: 100%;
+  place-items: center;
+  padding: 22px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.raw-response {
+  min-width: 0;
+  background: #ffffff;
+  border: 1px solid #dce4e0;
+  border-radius: var(--radius);
+}
+
+.raw-response summary {
+  padding: 9px 12px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.raw-response pre {
+  max-height: 160px;
+  margin: 0;
+  overflow: auto;
+  padding: 0 12px 12px;
+  color: #34413d;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
 .forecast-values {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -565,6 +734,15 @@ watch(
 }
 
 @media (max-width: 640px) {
+  .agent-status {
+    grid-template-columns: 36px minmax(0, 1fr);
+  }
+
+  .agent-status code {
+    grid-column: 1 / -1;
+    max-width: none;
+  }
+
   .horizon-control {
     align-items: flex-start;
     flex-wrap: wrap;
@@ -585,6 +763,17 @@ watch(
 
   .forecast-values {
     grid-template-columns: 1fr;
+  }
+}
+
+@keyframes think {
+  0%,
+  100% {
+    transform: scale(0.94);
+  }
+
+  50% {
+    transform: scale(1.08);
   }
 }
 </style>

@@ -23,7 +23,7 @@ export function valueAtHour(points, hour) {
 export function toForecastSeries(agentForecasts, agentNames) {
   return agentForecasts.map((agent) => ({
     ...agent,
-    name: agentNames[agent.nameKey],
+    name: agentNames[agent.nameKey] ?? agent.name ?? agent.id,
     hourlyPoints: Array.from({ length: 49 }, (_, hour) => [hour, valueAtHour(agent.points, hour)]),
     lastValue: agent.points.at(-1).value,
   }))
