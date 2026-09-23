@@ -189,7 +189,9 @@ onBeforeUnmount(() => {
 
     <WindMap
       v-if="selectedWindFarm && selectedTurbine"
+      v-model:start-date="startDate"
       v-model:selected-turbine-id="selectedTurbineId"
+      :bootstrap-status="bootstrapStatus"
       :language="language"
       :selected-turbine="selectedTurbine"
       :selected-wind-farm="selectedWindFarm"

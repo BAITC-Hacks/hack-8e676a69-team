@@ -90,25 +90,6 @@ const emit = defineEmits([
 
     <section class="control-section">
       <div class="section-title">
-        <Factory :size="18" />
-        <span>{{ t.windFarmLabel }}</span>
-      </div>
-      <label class="field">
-        <span>{{ t.windFarmLabel }}</span>
-        <select
-          :value="selectedWindFarmId"
-          :disabled="bootstrapStatus !== 'ready'"
-          @change="emit('update:selectedWindFarmId', $event.target.value)"
-        >
-          <option v-for="windFarm in windFarms" :key="windFarm.id" :value="windFarm.id">
-            {{ localized(windFarm.name, language) }}
-          </option>
-        </select>
-      </label>
-    </section>
-
-    <section class="control-section">
-      <div class="section-title">
         <CalendarDays :size="18" />
         <span>{{ t.calculationStartDate }}</span>
       </div>

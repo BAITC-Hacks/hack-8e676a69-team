@@ -1,11 +1,15 @@
 <script setup>
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import L from 'leaflet'
-import { MapPin, Wind } from '@lucide/vue'
+import { CalendarDays, MapPin, Wind } from '@lucide/vue'
 import { localized } from '../utils/localized'
 
 const props = defineProps({
   language: {
+    type: String,
+    required: true,
+  },
+  bootstrapStatus: {
     type: String,
     required: true,
   },
@@ -21,6 +25,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  startDate: {
+    type: String,
+    required: true,
+  },
   t: {
     type: Object,
     required: true,
@@ -31,7 +39,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['update:selectedTurbineId'])
+const emit = defineEmits(['update:selectedTurbineId', 'update:startDate'])
 
 const mapElement = ref(null)
 let map
@@ -147,20 +155,35 @@ defineExpose({
 <template>
   <section class="map-panel" :aria-label="t.mapTitle">
     <div class="map-topbar">
-      <label class="turbine-select">
-        <span>
-          <Wind :size="18" />
-          {{ t.turbineLabel }}
-        </span>
-        <select
-          :value="selectedTurbineId"
-          @change="emit('update:selectedTurbineId', $event.target.value)"
-        >
-          <option v-for="turbine in visibleTurbines" :key="turbine.id" :value="turbine.id">
-            {{ localized(turbine.name, language) }}
-          </option>
-        </select>
-      </label>
+      <div class="map-controls">
+        <label class="map-control turbine-select">
+          <span>
+            <Wind :size="18" />
+            {{ t.turbineLabel }}
+          </span>
+          <select
+            :value="selectedTurbineId"
+            @change="emit('update:selectedTurbineId', $event.target.value)"
+          >
+            <option v-for="turbine in visibleTurbines" :key="turbine.id" :value="turbine.id">
+              {{ localized(turbine.name, language) }}
+            </option>
+          </select>
+        </label>
+
+        <label class="map-control date-select">
+          <span>
+            <CalendarDays :size="18" />
+            {{ t.calculationStartDate }}
+          </span>
+          <input
+            :value="startDate"
+            :disabled="bootstrapStatus !== 'ready'"
+            type="date"
+            @input="emit('update:startDate', $event.target.value)"
+          />
+        </label>
+      </div>
 
       <div class="turbine-meta" aria-live="polite">
         <span>{{ t.coordinates }}: {{ selectedTurbine.coordLabel }}</span>
@@ -210,14 +233,21 @@ defineExpose({
   backdrop-filter: blur(12px);
 }
 
-.turbine-select {
+.map-controls {
   display: grid;
-  flex: 1 1 300px;
-  gap: 6px;
-  min-width: 240px;
+  grid-template-columns: minmax(220px, 1.2fr) minmax(190px, 0.8fr);
+  gap: 10px;
+  flex: 1 1 520px;
+  min-width: 0;
 }
 
-.turbine-select > span {
+.map-control {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.map-control > span {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -273,9 +303,9 @@ defineExpose({
     align-items: stretch;
   }
 
-  .turbine-select {
+  .map-controls {
+    grid-template-columns: 1fr;
     flex: 0 1 auto;
-    min-width: 0;
   }
 
   .turbine-meta {
