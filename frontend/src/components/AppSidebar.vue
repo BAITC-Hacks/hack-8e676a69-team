@@ -68,6 +68,7 @@ const rotatingAgentStatus = useRotatingAgentMessage(
 const statusMessage = computed(() => {
   if (props.bootstrapStatus === 'loading') return props.t.loadingBootstrap
   if (props.bootstrapStatus === 'error') return props.bootstrapError
+  if (props.forecastStatus === 'awaiting-confirmation') return props.t.waitingForConfirmation
   if (props.forecastStatus === 'idle') return props.t.waitingForSelection
   if (rotatingAgentStatus.message.value) return rotatingAgentStatus.message.value
   if (props.forecastStatus === 'succeeded') return props.t.forecastReady
