@@ -4,9 +4,10 @@ __pycache__/
 .venv/
 venv/
 node_modules/
-# ignored during development; force-add the built dist at feature freeze so judges need only Python
-web/dist/
-data/
+# Frontend build output stays untracked.
+frontend/dist/
+/data/
+back/data/*.csv
 *.db
 *.db-wal
 *.db-shm

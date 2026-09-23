@@ -11,20 +11,22 @@ cd /data/app
 echo "==> git pull --ff-only"
 git pull --ff-only
 
-if [ ! -d ".venv" ]; then
+if [ ! -d "back/.venv" ]; then
   echo "==> creating venv"
   # uv is NOT on the non-interactive PATH here, absolute path required.
-  /home/azureuser/.local/bin/uv venv --python 3.12 .venv
+  /home/azureuser/.local/bin/uv venv --python 3.12 back/.venv
 fi
 
 echo "==> installing python deps"
-/home/azureuser/.local/bin/uv pip install --python .venv/bin/python -r requirements.txt
+/home/azureuser/.local/bin/uv pip install --python back/.venv/bin/python -r back/requirements.txt
 
 echo "==> building frontend"
-cd web && npm ci && npm run build && cd ..
+cd frontend && npm ci && npm run build && cd ..
 
 echo "==> restarting services"
 # The ML teammate runs a separate worker watching /data/app/tickets.
+sudo install -m 644 back/deploy/hackalem.service /etc/systemd/system/hackalem.service
+sudo systemctl daemon-reload
 sudo systemctl restart hackalem
 
 echo "==> waiting for services to come up"

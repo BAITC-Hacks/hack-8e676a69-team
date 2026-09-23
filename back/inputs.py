@@ -24,12 +24,12 @@ class InputBuilder:
         turbine = TURBINES[request.turbine_id]
         series = await asyncio.to_thread(self.datasets.get, turbine)
         horizon = request.start_utc(self.settings.timezone)
-        stamps = request.timestamps(self.settings.timezone)
+        stamps = request.timestamps(self.settings.timezone, self.settings.sampling_step)
         values: dict[datetime, WeatherValue] = {}
         for stamp in stamps:
             history = stamp < horizon
             if history or self.settings.use_dataset_for_horizon:
-                value = series.sample(stamp, request.interval_minutes, observed_before=horizon if history else None)
+                value = series.sample(stamp, self.settings.interval_minutes, observed_before=horizon if history else None)
                 if value is not None:
                     values[stamp] = value
         missing = [stamp for stamp in stamps if stamp not in values]

@@ -64,7 +64,6 @@ def create_app(settings: Settings | None = None, *, datasets=None, weather=None)
                 "dataset_start": series.times[0].astimezone(settings.timezone).isoformat(),
                 "dataset_end": series.times[-1].astimezone(settings.timezone).isoformat(),
                 "timezone": settings.turbine_timezone,
-                "native_interval_minutes": 10,
                 "default_horizon_start": datetime.combine(series.times[-1].astimezone(settings.timezone).date() + timedelta(days=1), time.min, tzinfo=settings.timezone).isoformat(),
             })
         return output
@@ -80,11 +79,9 @@ def create_app(settings: Settings | None = None, *, datasets=None, weather=None)
                 "turbine_id": catalog[0]["id"],
                 "horizon_start": catalog[0]["default_horizon_start"],
                 "history_days": 30,
-                "step": 6,
             },
             "limits": {
                 "history_days": {"min": 1, "max": 90},
-                "step_options": [{"step": step, "interval_minutes": 60 // step} for step in range(1, 61) if 60 % step == 0],
             },
             "poll_interval_ms": 1000,
         }

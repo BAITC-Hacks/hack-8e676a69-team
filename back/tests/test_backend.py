@@ -43,7 +43,7 @@ class FakeWeather:
 
 def test_february_fifth_window_preserves_native_samples_and_fills_gap(tmp_path):
     settings = settings_for(tmp_path)
-    request = TicketRequest(turbine_id="A", horizon_start="2026-02-05", history_days=30, step=6)
+    request = TicketRequest(turbine_id="A", horizon_start="2026-02-05", history_days=30)
     start = datetime(2026, 1, 6, tzinfo=UTC)
     end = datetime(2026, 2, 1, tzinfo=UTC)
     values = {}
@@ -74,7 +74,7 @@ def test_dataset_weather_is_optional_for_prediction_rows(tmp_path):
     horizon = datetime(2026, 1, 10, tzinfo=UTC)
     values = {horizon + timedelta(minutes=i * 10): WeatherValue(99, 99, "dataset") for i in range(144)}
     provider = FakeWeather()
-    request = TicketRequest(turbine_id="B", horizon_start=horizon, history_days=1, step=6)
+    request = TicketRequest(turbine_id="B", horizon_start=horizon, history_days=1)
     rows = asyncio.run(InputBuilder(replace(settings, use_dataset_for_horizon=False), MemoryDatasets(values), provider).build(request, now=datetime(2026, 9, 23, tzinfo=UTC)))
     assert all(r["wind_speed_ms"] == 7 for r in rows if r["phase"] == "forecast")
     rows = asyncio.run(InputBuilder(settings, MemoryDatasets(values), provider).build(request, now=datetime(2026, 9, 23, tzinfo=UTC)))
@@ -97,9 +97,33 @@ def test_dataset_loader_ignores_energy_and_timezone_is_explicit(tmp_path):
 
 @pytest.mark.parametrize("step,minutes", [(1, 60), (3, 20), (6, 10), (12, 5)])
 def test_sampling_definition(step, minutes):
-    request = TicketRequest(turbine_id=1, horizon_start="2026-02-05", step=step)
-    assert request.interval_minutes == minutes
+    settings = Settings(sampling_step=step)
+    settings.validate()
+    request = TicketRequest(turbine_id=1, horizon_start="2026-02-05")
+    assert settings.interval_minutes == minutes
+    stamps = request.timestamps(settings.timezone, settings.sampling_step)
+    assert len(stamps) == (30 * 24 + 48) * step
+    assert stamps[1] - stamps[0] == timedelta(minutes=minutes)
     assert request.turbine_id == "A"
+
+
+@pytest.mark.parametrize("step", [0, 7, 61])
+def test_invalid_server_sampling(step):
+    with pytest.raises(ValueError, match="ML_STEP"):
+        Settings(sampling_step=step).validate()
+
+
+def test_sampling_is_configured_from_environment_and_paths_are_backend_relative(monkeypatch, tmp_path):
+    from back.config import BACKEND_ROOT, PROJECT_ROOT
+    monkeypatch.setenv("ML_STEP", "3")
+    monkeypatch.setenv("TICKETS_DIR", "../tickets")
+    monkeypatch.setenv("WEATHER_CACHE_DIR", ".cache/weather")
+    monkeypatch.chdir(tmp_path)
+    settings = Settings.from_env()
+    settings.validate()
+    assert settings.sampling_step == 3
+    assert settings.tickets_dir == PROJECT_ROOT / "tickets"
+    assert settings.cache_dir == BACKEND_ROOT / ".cache" / "weather"
 
 
 @pytest.mark.parametrize("field,value", [("step", 0), ("step", 7), ("horizon_hours", 72), ("history_days", 0), ("turbine_id", "C"), ("horizon_start", "2026-02-05T00:03:00")])
@@ -166,7 +190,7 @@ def test_http_folder_handoff_and_opaque_ml_output_survive_backend_restart(tmp_pa
     repository = MemoryDatasets({})
     app = create_app(settings, datasets=repository, weather=FakeWeather())
     with TestClient(app) as client:
-        response = client.post("/api/tickets", json={"turbine_id": "B", "horizon_start": "2026-02-05", "history_days": 1, "step": 6})
+        response = client.post("/api/tickets", json={"turbine_id": "B", "horizon_start": "2026-02-05", "history_days": 1})
         assert response.status_code == 202
         ticket_id = response.json()["ticket_id"]
         ticket_dir = settings.tickets_dir / ticket_id

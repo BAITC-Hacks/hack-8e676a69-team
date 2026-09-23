@@ -1,5 +1,0 @@
-Write-Host "Backend (from this repository, with the venv active):"
-Write-Host "  python -m uvicorn back.main:app --host 127.0.0.1 --port 8000 --reload"
-Write-Host "API documentation: http://127.0.0.1:8000/docs"
-Write-Host "Run the ML teammate's worker separately, watching the same tickets directory."
-Write-Host "Frontend uses POST /api/tickets and polls GET /api/tickets/{id}."

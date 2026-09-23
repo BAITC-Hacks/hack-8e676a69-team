@@ -1,33 +1,32 @@
 # ML worker handoff
 
-The ML teammate implements the worker here. Backend and worker share the repository's sibling tickets/ directory, or the same configured absolute TICKETS_DIR.
+The ML teammate implements the Python worker here. Backend and worker share root tickets/, alongside back/, frontend/, and ml/.
 
 ## Input
 
-Watch tickets/<id>/data.csv. Process a ticket only after this final filename exists. Backend temporary files are not ready for reading.
+Wait for tickets/<id>/data.csv. Temporary files are not ready. There is no request.json.
 
 ```csv
 timestamp,phase,turbine_id,wind_speed_ms,temperature_c,weather_source
 ```
 
-- timestamp: ISO datetime with UTC offset, in ascending order.
-- phase: history or forecast. The first forecast row is the requested horizon start.
-- turbine_id: A = supplied turbine 1; B = supplied turbine 2.
-- wind_speed_ms and temperature_c: the only numeric weather features supplied by the backend.
-- weather_source: provenance; select the actual feature columns rather than treating every column as a model feature.
-- There are no power/MWh labels in this file. Model training and output units belong to the ML component.
-- The requested step is samples per hour. step=6 produces ten-minute rows; infer it from adjacent timestamps.
-- The prediction portion always spans 48 hours. Frontend display preferences do not change the backend/ML horizon.
-- Native dataset ten-minute measurements are preserved. Subhourly internet weather is interpolated from hourly forecasts and labeled accordingly; it is not additional observed meteorological detail.
+- timestamp: ISO time with UTC offset, ascending.
+- phase: history or forecast; the first forecast timestamp is the horizon start.
+- turbine_id: A = supplied turbine 1; B = turbine 2.
+- Numeric inputs: wind speed in m/s and temperature in Celsius.
+- weather_source identifies measurements, forecasts, and interpolation.
+- No power/MWh training labels are sent.
 
-No request.json is used. All required input context is in the CSV. The default timezone is Asia/Almaty; confirm the dataset's actual timezone and configure TURBINE_TIMEZONE if different. The default online wind predictor is 100 m; this is also configurable and should be agreed with ML.
+Prediction input always spans 48 hours. Sampling is configured by backend/ML using ML_STEP in back/.env: 6 means ten-minute rows. Restart backend after changing it. Frontend has no sampling control.
+
+Native ten-minute measurements are preserved. Online weather is interpolated from hourly forecasts for finer grids and marked accordingly. Confirm TURBINE_TIMEZONE and the online wind predictor height with the backend owner.
 
 ## Output
 
-Write any agreed frontend-facing JSON schema to tickets/<id>/response.json.tmp, flush and close it, then rename it to response.json on the same filesystem. Use standard finite JSON numbers; no NaN or Infinity. Backend returns the exact JSON bytes without adding a wrapper or converting MWh values.
+Write the frontend-facing JSON to response.json.tmp, flush and close it, then rename to response.json. Use valid finite JSON numbers. Backend returns the exact bytes without wrapping or unit conversion.
 
-Agree prediction timestamps with frontend so it can display a shorter interval from the full 48-hour response. Input sampling frequency does not require frontend to assume the model's output frequency.
+Agree on prediction timestamps with frontend so it can show a selected portion of the complete 48-hour response. Input sampling does not dictate the frontend's output cadence.
 
-On a model failure, publish the error representation agreed with frontend as valid response.json. If no response is produced, backend eventually returns an HTTP timeout. Mark/claim jobs internally so a published data.csv is not processed repeatedly or by multiple workers simultaneously. Do not modify data.csv.
+On model failure, write the error schema agreed with frontend as response.json. If no response arrives, backend eventually returns an HTTP timeout. Claim jobs internally to prevent duplicate processing. Backend expires completed ticket folders after a retrieval window.
 
-The backend retains responses briefly for retrieval, then cleans expired ticket directories. It does not implement or launch a placeholder prediction model. See [the backend contract](../back/README.md) for HTTP details and the verified February 5 example.
+[Backend contract](../back/README.md).

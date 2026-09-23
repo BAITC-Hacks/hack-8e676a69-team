@@ -1,26 +1,57 @@
-# FastAPI backend contract
+# Backend
 
-The backend builds a weather-only CSV, publishes it in a ticket directory, and returns the ML worker's JSON through HTTP. It does not train a model or keep a user-history database.
+Everything specific to the Python backend lives in this folder: source, dependencies, .env configuration, tests, local datasets, cache, launchers, and deployment files. The shared tickets/ directory is a sibling of back/, frontend/, and ml/.
 
-## Run
+## Setup and configuration
 
-From the repository root, with the virtual environment active:
+From the repository root, create back/.venv and install back/requirements.txt using that environment's Python. Run back/run.ps1 on Windows or bash back/run.sh on Linux. Both launchers accept --reload and automatically load back/.env if present.
+
+For direct startup from the repository root, with the backend environment active:
 
 ```sh
-python -m uvicorn back.main:app --host 127.0.0.1 --port 8000 --reload
+python -m uvicorn back.main:app --env-file back/.env --host 127.0.0.1 --port 8000
 ```
 
-Interactive API: http://127.0.0.1:8000/docs. If using a local .env file, add --env-file .env. The systemd service reads /data/app/.env directly.
+Omit --env-file if no .env has been created. Interactive API: http://127.0.0.1:8000/docs.
 
-Copy .env.example to .env to customize paths and settings. Confirm TURBINE_TIMEZONE with the data owner. Asia/Almaty is a location-based default: UTC+5 in February 2026; the CSV files do not declare a timezone. All exported timestamps include their UTC offset.
+Copy .env.example to .env in this folder. All relative configuration paths resolve from back/, independent of the launch directory.
 
-## HTTP
+| Setting | Default | Meaning |
+| --- | --- | --- |
+| ML_STEP | 6 | Samples per hour, controlled by backend/ML |
+| TURBINE_TIMEZONE | Asia/Almaty | Provisional dataset timezone; confirm with data owner |
+| DATASETS_DIR | back/data | Original turbine CSVs |
+| TICKETS_DIR | root tickets/ | Shared worker exchange |
+| WEATHER_CACHE_DIR | back/.cache/weather | Weather response cache |
+| WEATHER_MODEL | gfs_global | Online forecast model |
+| WEATHER_WIND_VARIABLE | wind_speed_100m | Configurable weather predictor height |
+| USE_DATASET_FOR_HORIZON | true | Permit observed CSV weather for historical known-weather tests |
+| FORECAST_AVAILABILITY_MARGIN_HOURS | 12 | Conservative archived forecast availability allowance |
+| TICKET_TIMEOUT_SECONDS | 1800 | Worker response deadline |
+| RESULT_TTL_SECONDS | 1800 | Finished-result retrieval window |
+| MAX_ACTIVE_TICKETS | 32 | Submission limit |
+| CORS_ORIGINS | * | Allowed frontend origins |
 
-### GET /api/bootstrap — call once when the site opens
+ML_STEP must be a positive divisor of 60: 1 means hourly, 3 every 20 minutes, 6 every 10 minutes, and 12 every 5 minutes. Set it in back/.env and restart backend when the ML teammate changes their input requirements. Frontend neither sends nor selects it.
 
-Returns turbine options and dataset coverage, the configured timezone, a ready-to-submit defaults object, history-day limits, step/interval options, prediction_hours=48, and poll_interval_ms=1000. Each turbine includes its own suggested start date: midnight after its last dataset day.
+Place the two supplied CSVs under data/, with filenames ending in turbine 1.csv and turbine 2.csv. CSVs are ignored by Git; copy them separately when deploying. An absolute DATASETS_DIR may point to another dataset location.
 
-The frontend can populate its controls directly from this response. To show an initial forecast automatically, POST the defaults object to /api/tickets, then poll the returned poll_url. No weather/model job is started merely by fetching bootstrap metadata.
+## Frontend HTTP contract
+
+### GET /api/bootstrap
+
+Call once when the page opens. Returns:
+
+- prediction_hours: always 48.
+- timezone: explicit timezone for naive input dates.
+- turbines: A/B, coordinates, source dataset coverage, and suggested horizon start.
+- defaults: only turbine_id, horizon_start, and history_days. This object can be posted directly.
+- limits.history_days: minimum 1, maximum 90.
+- poll_interval_ms: 1000.
+
+Each turbine's suggested start is midnight after its last dataset day. Bootstrap only reads metadata; it does not start a prediction. Frontend can POST defaults if it wants an automatic initial forecast.
+
+No sampling selector or step value is exposed in bootstrap.
 
 ### POST /api/tickets
 
@@ -28,128 +59,83 @@ The frontend can populate its controls directly from this response. To show an i
 {
   "turbine_id": "A",
   "horizon_start": "2026-02-05",
-  "history_days": 30,
-  "step": 6
+  "history_days": 30
 }
 ```
 
-- turbine_id: A or B, mapped to the supplied turbine 1/2 CSVs. 1 and 2 are accepted aliases.
-- horizon_start: a date or an ISO datetime. A date means midnight in TURBINE_TIMEZONE. Explicit offsets are accepted.
-- Prediction is always 48 hours. Do not send horizon_hours; the frontend applies its chosen display window to the returned prediction timestamps.
-- history_days: 1–90; default 30. The history is the exact preceding duration, including internet-filled gaps.
-- step: samples per hour, default 6. Interval in minutes = 60 / step. It must divide 60: 1, 2, 3, 4, 5, 6, 10, 12, 15, 20, 30, or 60.
-- Dataset use in historical prediction windows is a backend setting: USE_DATASET_FOR_HORIZON=true by default. Set it false on the backend for archived-weather backtests. It is not a frontend request field.
+- turbine_id: A or B; 1/2 are accepted aliases.
+- horizon_start: date or whole-hour ISO datetime. A date means midnight in TURBINE_TIMEZONE. An explicit offset is accepted.
+- history_days: 1–90, default 30.
 
-The start must align to the chosen interval. Unknown fields and invalid inputs return HTTP 422.
+The prediction horizon is always 48 hours. Extra fields, including step and horizon_hours, return HTTP 422.
 
-HTTP 202 response:
-
-```json
-{
-  "ticket_id": "a_generated_32_character_hex_id",
-  "status": "preparing",
-  "poll_url": "/api/tickets/a_generated_32_character_hex_id",
-  "input": {
-    "turbine_id": "A",
-    "history_start": "2026-01-06T00:00:00+05:00",
-    "horizon_start": "2026-02-05T00:00:00+05:00",
-    "horizon_end_exclusive": "2026-02-07T00:00:00+05:00",
-    "step": 6,
-    "interval_minutes": 10,
-    "history_rows": 4320,
-    "forecast_rows": 288,
-    "prediction_hours": 48,
-    "timezone": "Asia/Almaty",
-    "use_dataset_for_horizon": true
-  }
-}
-```
-
-The frontend keeps this request metadata in its own history.
+HTTP 202 returns ticket_id, status=preparing, poll_url, and descriptive input metadata. Frontend retains its own request history.
 
 ### GET /api/tickets/{ticket_id}
 
-- HTTP 202, status preparing: weather/input preparation is still running.
-- HTTP 202, status pending: data.csv is published; response.json is not available yet. This does not claim that the ML worker has started.
-- HTTP 200: the exact contents of response.json, with application/json content type. There is no backend wrapper or unit conversion.
-- HTTP 404: unknown or expired ticket.
-- HTTP 422/502/503: input/provider/configuration failure; JSON contains error.code and error.message.
-- HTTP 504: no ML response before the processing timeout.
+- 202 preparing: backend is collecting weather/building input.
+- 202 pending: data.csv exists and response.json is not ready.
+- 200: exact response.json bytes, with application/json content type.
+- 404: unknown or expired ticket.
+- 422/502/503: input, provider, or configuration failure.
+- 504: worker response timed out.
 
-Pending responses include poll_after_ms=1000 and Retry-After: 1. The frontend can poll once per second and save the completed JSON locally. No ticket-list/history endpoint is needed.
+Error bodies contain error.code and error.message. Poll approximately once a second. A pending state does not claim that ML execution has started; the file interface does not provide that signal.
 
-### GET /api/turbines
+GET /api/turbines also exposes the turbine catalog. GET /health checks the backend process, not the independent worker.
 
-Returns A/B, coordinates, dataset coverage, timezone, and the native ten-minute interval. GET /health checks that the backend is running; it does not claim the external ML worker is healthy.
-
-## Filesystem handoff
+## ML file interface
 
 ```text
-web/
-back/
-ml/
-tickets/
-  <ticket-id>/
+tickets/<id>/
     data.csv
     response.json
 ```
 
-TICKETS_DIR must point to the same filesystem location for backend and worker. Backend writes data.csv.tmp, flushes/closes it, and atomically renames it to data.csv. The worker must wait for data.csv, then publish response.json using the same temporary-file-and-rename pattern. No request.json is created.
+The backend publishes data.csv using a temporary file and atomic rename. The worker must do the same for response.json. No request.json is created.
 
-The worker owns the response schema. It must be valid JSON, including finite JSON numbers. The backend checks syntax and returns the original bytes. See [the ML handoff](../ml/README.md).
-
-## CSV schema and timing
+CSV columns:
 
 ```csv
 timestamp,phase,turbine_id,wind_speed_ms,temperature_c,weather_source
-2026-01-06T00:00:00+05:00,history,A,5.04,0.36,dataset
 ```
 
-- Every timestamp is explicit and timezone-aware.
-- phase is history for timestamps strictly before horizon_start and forecast at/after it.
-- Units are m/s and degrees Celsius.
-- No power, energy, MWh, or target columns are read into this interface.
-- The worker can infer the interval, history length, horizon, and turbine from this one file.
-- Rows are ascending and evenly spaced; incomplete weather preparation produces an error instead of a partial data.csv.
+Timestamps include UTC offsets, are ascending, and use the backend-configured interval. phase is history before the horizon and forecast at/after it. Units are m/s and Celsius. No power/MWh columns are included. ML handles training, prediction units, and the response schema.
 
-For February 5, 30 prior days, a 48-hour horizon, and step=6:
+Backend returns valid standard JSON unchanged. Frontend and ML should agree on output timestamps so a shorter display window does not depend on the model's output cadence. [Worker instructions](../ml/README.md).
+
+## Example and weather sources
+
+For February 5, 30 history days, and ML_STEP=6:
 
 | Portion | Interval | Rows |
 | --- | --- | --- |
-| Dataset history | January 6 00:00–January 31 23:50 | 3,744 |
-| Internet history | February 1 00:00–February 4 23:50 | 576 |
-| Forecast inputs | February 5 00:00–February 6 23:50 | 288 |
+| Turbine history | January 6–31 | 3,744 |
+| Internet history | February 1–4 | 576 |
+| Forecast inputs | February 5–6 | 288 |
 | Total | January 6 to February 7, exclusive | 4,608 |
 
-This exact example was verified against turbine A's real CSV and the weather API. Other windows can have internal missing dataset observations, which are also filled from the internet.
+This exact example was verified with the real turbine A data and weather API. Internal gaps in other windows are filled from online weather as well.
 
-Native ten-minute dataset values are preserved with step=6. Coarser bins average available measurements. Finer grids interpolate only between adjacent native measurements, and are labeled dataset_interpolated; missing observations are not silently bridged.
+Native ten-minute measurements are preserved. Coarser grids aggregate observations; finer grids interpolate between adjacent observations. Online weather is hourly, so finer grids use linear interpolation and mark it in weather_source. Interpolation does not add independent meteorological observations.
 
-## Weather fetching
+Historical internet inputs use Open-Meteo Previous Runs with explicit GFS selection. Upcoming points can use its live Forecast API. The configured wind height must be agreed with ML. Source labels distinguish dataset measurements, aggregation/interpolation, archived lead offsets, and live forecasts. [Previous Runs documentation](https://open-meteo.com/en/docs/previous-runs-api), [Forecast documentation](https://open-meteo.com/en/docs).
 
-The backend uses Open-Meteo with explicit coordinates, GFS model selection, UTC API timestamps, m/s, and Celsius. The wind predictor defaults to 100 m and is configurable; confirm the appropriate predictor height with ML.
+Archived offsets are relative to individual target hours. Backend selects older offsets with the configured availability margin, including both interpolation endpoints. This is a conservative policy assumption, not a verification of exact historical publication timestamps.
 
-For a historical replay, missing history and forecast inputs come from archived forecasts. For upcoming dates, past gaps use the archive and future points can use the live forecast endpoint. Future requests outside the provider's available range fail clearly. Local measurements take priority in history; USE_DATASET_FOR_HORIZON controls their use in the forecast horizon.
+Observed CSV weather inside the forecast horizon is a known-weather diagnostic. Set USE_DATASET_FOR_HORIZON=false on the backend for archived-weather forecasting backtests.
 
-Source labels distinguish dataset, dataset_aggregated, dataset_interpolated, open_meteo_archive_d1/d2/d3, and open_meteo_live. Subhourly internet values are linearly interpolated from hourly endpoints and carry an _interpolated suffix. These are not newly measured ten-minute weather observations.
+## Lifecycle, tests, and deployment
 
-Archived lead offsets are relative to each target hour, not a single common forecast issuance. The backend chooses older offsets separately for both endpoints needed for interpolation, using a configurable 12-hour availability margin. This is a conservative policy assumption, not an audit of exact historical publication timestamps. Dataset weather in the forecast horizon is an observed-weather diagnostic, not an end-to-end weather-forecast backtest. [Previous Runs documentation](https://open-meteo.com/en/docs/previous-runs-api), [Forecast documentation](https://open-meteo.com/en/docs).
+No user-history database is used. Active preparation state is in memory; published CSV/results survive restart. Interrupted preparation before CSV publication must be resubmitted. Finished results remain temporarily for frontend retrieval and are then cleaned up.
 
-Responses are cached under WEATHER_CACHE_DIR: archived queries for 24 hours, live queries for five minutes. Provider retries are bounded. Missing/null weather is reported as an error.
-
-## Lifetime and deployment
-
-Active preparation state is in memory. Published tickets survive backend restarts because data.csv and response.json remain on disk. Preparation interrupted before data.csv publication must be resubmitted.
-
-Default worker timeout is 30 minutes. Completed results remain for 30 minutes after response.json is written; a background cleanup removes expired generated ticket folders. Retention is transport reliability, not user history. Cache and TTL settings are configurable in .env.example.
-
-Use one backend process for this prototype. The ML worker runs independently and watches tickets/. The backend serves web/dist when present and Caddy can proxy localhost:8000. CORS is configurable for a separately hosted frontend.
-
-## Checks
+With the backend virtual environment active, from the repository root:
 
 ```sh
-python -m pip install -r requirements-dev.txt
-python -m pytest tests -q
+python -m pip install -r back/requirements-dev.txt
+python -m pytest -c back/pytest.ini -q
 ```
 
-The tests cover the exact February 5 window, native sampling, interpolation, no energy columns, archived cutoff selection, HTTP polling, atomic handoff, error/timeout behavior, restart recovery, and scoped cleanup. ML prediction quality is outside these transport/input checks.
+Tests cover server-controlled sampling, rejection of frontend overrides, bootstrap defaults, exact windows, weather-only input, interpolation, cutoff selection, polling, atomic publication, JSON passthrough, timeouts, recovery, and cleanup.
+
+Deployment assets live in deploy/. The systemd service runs /data/app/back/.venv/bin/python, reads /data/app/back/.env, and exposes localhost:8000 behind Caddy. ML watches /data/app/tickets independently. Use one backend process for this prototype.

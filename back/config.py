@@ -5,7 +5,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
+BACKEND_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = BACKEND_ROOT.parent
 
 
 @dataclass(frozen=True)
@@ -23,16 +24,20 @@ TURBINES = {
 
 
 def default_datasets_dir() -> Path:
-    local = PROJECT_ROOT.parent / "tracks" / "Энергетика"
-    return local if local.is_dir() else Path("/data/datasets")
+    return BACKEND_ROOT / "data"
+
+
+def env_path(name: str, default: Path) -> Path:
+    path = Path(os.getenv(name) or default).expanduser()
+    return (path if path.is_absolute() else BACKEND_ROOT / path).resolve()
 
 
 @dataclass(frozen=True)
 class Settings:
     tickets_dir: Path = PROJECT_ROOT / "tickets"
     datasets_dir: Path = field(default_factory=default_datasets_dir)
-    cache_dir: Path = PROJECT_ROOT / ".cache" / "weather"
-    web_dist: Path = PROJECT_ROOT / "web" / "dist"
+    cache_dir: Path = BACKEND_ROOT / ".cache" / "weather"
+    web_dist: Path = PROJECT_ROOT / "frontend" / "dist"
     # Location-based default, NOT a confirmed statement about the source CSV.
     turbine_timezone: str = "Asia/Almaty"
     weather_model: str = "gfs_global"
@@ -44,20 +49,25 @@ class Settings:
     result_ttl_seconds: int = 1800
     max_active_tickets: int = 32
     use_dataset_for_horizon: bool = True
+    sampling_step: int = 6
     cors_origins: tuple[str, ...] = ("*",)
 
     @property
     def timezone(self) -> ZoneInfo:
         return ZoneInfo(self.turbine_timezone)
 
+    @property
+    def interval_minutes(self) -> int:
+        return 60 // self.sampling_step
+
     @classmethod
     def from_env(cls) -> "Settings":
         defaults = cls()
         return cls(
-            tickets_dir=Path(os.getenv("TICKETS_DIR", str(defaults.tickets_dir))).resolve(),
-            datasets_dir=Path(os.getenv("DATASETS_DIR", str(defaults.datasets_dir))).resolve(),
-            cache_dir=Path(os.getenv("WEATHER_CACHE_DIR", str(defaults.cache_dir))).resolve(),
-            web_dist=Path(os.getenv("WEB_DIST", str(defaults.web_dist))).resolve(),
+            tickets_dir=env_path("TICKETS_DIR", defaults.tickets_dir),
+            datasets_dir=env_path("DATASETS_DIR", defaults.datasets_dir),
+            cache_dir=env_path("WEATHER_CACHE_DIR", defaults.cache_dir),
+            web_dist=env_path("WEB_DIST", defaults.web_dist),
             turbine_timezone=os.getenv("TURBINE_TIMEZONE", defaults.turbine_timezone),
             weather_model=os.getenv("WEATHER_MODEL", defaults.weather_model),
             wind_variable=os.getenv("WEATHER_WIND_VARIABLE", defaults.wind_variable),
@@ -67,11 +77,14 @@ class Settings:
             result_ttl_seconds=int(os.getenv("RESULT_TTL_SECONDS", "1800")),
             max_active_tickets=int(os.getenv("MAX_ACTIVE_TICKETS", "32")),
             use_dataset_for_horizon=os.getenv("USE_DATASET_FOR_HORIZON", "true").lower() in {"1", "true", "yes"},
+            sampling_step=int(os.getenv("ML_STEP", "6")),
             cors_origins=tuple(x.strip() for x in os.getenv("CORS_ORIGINS", "*").split(",") if x.strip()),
         )
 
     def validate(self) -> None:
         self.timezone
+        if not 1 <= self.sampling_step <= 60 or 60 % self.sampling_step:
+            raise ValueError("ML_STEP must be a positive divisor of 60; 6 means one row every 10 minutes")
         if not 1 <= self.forecast_availability_margin_hours <= 24:
             raise ValueError("FORECAST_AVAILABILITY_MARGIN_HOURS must be between 1 and 24")
         if min(self.weather_timeout_seconds, self.ticket_timeout_seconds, self.result_ttl_seconds, self.max_active_tickets) <= 0:
