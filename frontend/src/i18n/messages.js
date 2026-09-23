@@ -72,6 +72,9 @@ export const messages = {
       done: 'done',
       error: 'error',
     },
+    errorMessages: {
+      forecast_out_of_range: 'No forecast is available for this date. Choose another start date.',
+    },
     region: 'Region',
   },
   ru: {
@@ -147,6 +150,9 @@ export const messages = {
       done: 'done',
       error: 'error',
     },
+    errorMessages: {
+      forecast_out_of_range: 'Нет прогноза на эту дату. Выберите другую дату начала расчета.',
+    },
     region: 'Регион',
   },
   kk: {
@@ -221,6 +227,9 @@ export const messages = {
       pending: 'wait',
       done: 'done',
       error: 'error',
+    },
+    errorMessages: {
+      forecast_out_of_range: 'Бұл күнге болжам жоқ. Басқа басталу күнін таңдаңыз.',
     },
     region: 'Аймақ',
   },

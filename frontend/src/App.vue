@@ -110,6 +110,10 @@ function upsertRequestHistory(ticketId, patch) {
   persistRequestHistory()
 }
 
+function forecastErrorMessage(error) {
+  return t.value.errorMessages?.[error.code] ?? error.message
+}
+
 async function selectHistoryTicket(ticketId) {
   const entry = requestHistory.value.find((item) => item.ticketId === ticketId)
 
@@ -265,7 +269,7 @@ async function submitForecast() {
   } catch (error) {
     if (serial !== requestSerial) return
     forecastStatus.value = 'error'
-    forecastError.value = error.message
+    forecastError.value = forecastErrorMessage(error)
   }
 }
 
@@ -305,11 +309,13 @@ async function pollTicket(ticketId, turbineId, serial) {
     forecastStatus.value = 'succeeded'
   } catch (error) {
     if (serial !== requestSerial) return
+    const message = forecastErrorMessage(error)
+
     forecastStatus.value = 'error'
-    forecastError.value = error.message
+    forecastError.value = message
     upsertRequestHistory(ticketId, {
       status: 'error',
-      errorMessage: error.message,
+      errorMessage: message,
       ticket: { ...(currentTicket.value ?? {}), ticket_id: ticketId, status: 'error' },
     })
   }

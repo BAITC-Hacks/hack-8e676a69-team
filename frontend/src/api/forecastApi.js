@@ -16,6 +16,7 @@ async function requestJson(path, options = {}) {
     const message = payload?.error?.message ?? payload?.detail ?? response.statusText
     const error = new Error(message)
     error.status = response.status
+    error.code = payload?.error?.code
     error.payload = payload
     throw error
   }
