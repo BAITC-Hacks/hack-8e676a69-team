@@ -1,0 +1,17 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+node_modules/
+# ignored during development; force-add the built dist at feature freeze so judges need only Python
+web/dist/
+data/
+*.db
+*.db-wal
+*.db-shm
+.DS_Store
+.pytest_cache/
+.cache/
+tickets/*
+!tickets/.gitkeep
