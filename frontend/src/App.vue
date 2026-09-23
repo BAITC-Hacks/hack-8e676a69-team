@@ -47,8 +47,7 @@ const visibleTurbines = computed(() =>
   turbines.value.filter((turbine) => turbine.windFarmId === selectedWindFarmId.value),
 )
 const selectedTurbine = computed(() =>
-  visibleTurbines.value.find((turbine) => turbine.id === selectedTurbineId.value) ??
-  visibleTurbines.value[0],
+  visibleTurbines.value.find((turbine) => turbine.id === selectedTurbineId.value),
 )
 const selectedTurbineName = computed(() =>
   selectedTurbine.value ? localized(selectedTurbine.value.name, language.value) : '',
@@ -174,15 +173,14 @@ async function loadBootstrap() {
     windFarms.value = bootstrap.windFarms
     turbines.value = bootstrap.turbines
     selectedWindFarmId.value = bootstrap.windFarms[0]?.id ?? ''
-    selectedTurbineId.value = bootstrap.defaults.turbine_id ?? bootstrap.turbines[0]?.id ?? ''
-    startDate.value = bootstrap.defaults.horizon_start
+    selectedTurbineId.value = ''
+    startDate.value = ''
     historyDays.value = bootstrap.defaults.history_days
     predictionHours.value = bootstrap.predictionHours
     pollIntervalMs.value = bootstrap.pollIntervalMs
     bootstrapStatus.value = 'ready'
     await nextTick()
     autoSubmitPaused = false
-    requestForecastConfirmation()
   } catch (error) {
     autoSubmitPaused = false
     bootstrapStatus.value = 'error'
@@ -318,8 +316,8 @@ async function pollTicket(ticketId, turbineId, serial) {
 }
 
 watch(selectedWindFarmId, () => {
-  if (!visibleTurbines.value.some((turbine) => turbine.id === selectedTurbineId.value)) {
-    selectedTurbineId.value = visibleTurbines.value[0]?.id
+  if (selectedTurbineId.value && !visibleTurbines.value.some((turbine) => turbine.id === selectedTurbineId.value)) {
+    selectedTurbineId.value = ''
   }
 })
 
@@ -366,7 +364,15 @@ onBeforeUnmount(() => {
       :visible-turbines="visibleTurbines"
     />
     <section v-else class="map-placeholder">
-      <span>{{ bootstrapStatus === 'loading' ? t.loadingBootstrap : t.bootstrapUnavailable }}</span>
+      <span>
+        {{
+          bootstrapStatus === 'loading'
+            ? t.loadingBootstrap
+            : bootstrapStatus === 'ready'
+              ? t.waitingForSelection
+              : t.bootstrapUnavailable
+        }}
+      </span>
     </section>
 
     <ForecastPanel
