@@ -1,10 +1,6 @@
-import test from pipelines.test
-
-pipelines = {
-	'test': Test()
-}
-from .test import Test
+"""Weather-only ticket inference; no NVIDIA text-generation calls."""
+from inference.forecast import ForecastPipeline
 
 
-def build_pipelines():
-    return {"test": Test()}
+def build_pipelines(**kwargs):
+    return {"forecast": ForecastPipeline(**kwargs)}

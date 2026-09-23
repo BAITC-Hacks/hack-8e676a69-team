@@ -1,5 +1,10 @@
 # Backend
 
+The CatBoost worker in [`../inference/`](../inference/README.md) now starts inside
+the backend by default. No frontend API changes and no separate ML process are
+needed. Install the updated requirements, supply both turbine datasets, and start
+the backend normally. Set `INFERENCE_ENABLED=false` only to run a separate worker.
+
 Everything specific to the Python backend lives in this folder: source, dependencies, .env configuration, tests, local datasets, cache, launchers, and deployment files. The shared tickets/ directory is a sibling of back/, frontend/, and ml/.
 
 ## Setup and configuration
@@ -22,6 +27,10 @@ Copy .env.example to .env in this folder. All relative configuration paths resol
 | TURBINE_TIMEZONE | Asia/Almaty | Provisional dataset timezone; confirm with data owner |
 | DATASETS_DIR | back/data | Original turbine CSVs |
 | TICKETS_DIR | root tickets/ | Shared worker exchange |
+| INFERENCE_ENABLED | true | Run the CatBoost ticket worker inside this backend |
+| INFERENCE_MODEL_DIR | root inference/models/ | Bundled weather-only models and manifest |
+| INFERENCE_WORKERS | 2 | Concurrent ticket jobs |
+| INFERENCE_THREADS | 1 | CatBoost threads per job |
 | WEATHER_CACHE_DIR | back/.cache/weather | Weather response cache |
 | WEATHER_MODEL | gfs_global | Online forecast model |
 | WEATHER_WIND_VARIABLE | wind_speed_100m | Configurable weather predictor height |
@@ -65,7 +74,7 @@ No sampling selector or step value is exposed in bootstrap.
 
 - turbine_id: A or B; 1/2 are accepted aliases.
 - horizon_start: date or whole-hour ISO datetime. A date means midnight in TURBINE_TIMEZONE. An explicit offset is accepted.
-- history_days: 1–90, default 30.
+- history_days: 1–90, default 30. Values below seven are expanded to seven days for the model; response metadata reports the effective range.
 
 The prediction horizon is always 48 hours. Extra fields, including step and horizon_hours, return HTTP 422.
 
@@ -82,7 +91,7 @@ HTTP 202 returns ticket_id, status=preparing, poll_url, and descriptive input me
 
 Error bodies contain error.code and error.message. Poll approximately once a second. A pending state does not claim that ML execution has started; the file interface does not provide that signal.
 
-GET /api/turbines also exposes the turbine catalog. GET /health checks the backend process, not the independent worker.
+GET /api/turbines also exposes the turbine catalog. GET /health checks the backend process; model files are validated when the embedded worker starts. It does not check data files or external weather availability.
 
 ## ML file interface
 
@@ -102,7 +111,10 @@ timestamp,phase,turbine_id,wind_speed_ms,temperature_c,weather_source
 
 Timestamps include UTC offsets, are ascending, and use the backend-configured interval. phase is history before the horizon and forecast at/after it. Units are m/s and Celsius. No power/MWh columns are included. ML handles training, prediction units, and the response schema.
 
-Backend returns valid standard JSON unchanged. Frontend and ML should agree on output timestamps so a shorter display window does not depend on the model's output cadence. [Worker instructions](../ml/README.md).
+Backend returns valid standard JSON unchanged. Successful inference returns one
+`series` entry (`id=agent-ctboost`, `name=Main forecast`, `color=#157a65`) containing
+48 `points` with `hour` 0–47 and normalized power `value` in [0,1]. Worker errors
+use `error.code`/`error.message`. [Worker contract](../inference/README.md).
 
 ## Example and weather sources
 
@@ -138,4 +150,4 @@ python -m pytest -c back/pytest.ini -q
 
 Tests cover server-controlled sampling, rejection of frontend overrides, bootstrap defaults, exact windows, weather-only input, interpolation, cutoff selection, polling, atomic publication, JSON passthrough, timeouts, recovery, and cleanup.
 
-Deployment assets live in deploy/. The systemd service runs /data/app/back/.venv/bin/python, reads /data/app/back/.env, and exposes localhost:8000 behind Caddy. ML watches /data/app/tickets independently. Use one backend process for this prototype.
+Deployment assets live in deploy/. The systemd service runs /data/app/back/.venv/bin/python, reads /data/app/back/.env, and exposes localhost:8000 behind Caddy. The embedded worker watches /data/app/tickets automatically. Include inference/models/ in deployment. Use one backend process for this prototype.

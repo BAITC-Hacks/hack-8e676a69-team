@@ -21,7 +21,7 @@ from back.weather import OpenMeteo, forecast_lead_days
 
 
 def settings_for(tmp_path, **kwargs):
-    return Settings(tickets_dir=tmp_path / "tickets", datasets_dir=tmp_path / "datasets", cache_dir=tmp_path / "cache", web_dist=tmp_path / "no-web", turbine_timezone="UTC", **kwargs)
+    return Settings(tickets_dir=tmp_path / "tickets", datasets_dir=tmp_path / "datasets", cache_dir=tmp_path / "cache", web_dist=tmp_path / "no-web", turbine_timezone="UTC", inference_enabled=False, **kwargs)
 
 
 class MemoryDatasets:
@@ -198,7 +198,7 @@ def test_http_folder_handoff_and_opaque_ml_output_survive_backend_restart(tmp_pa
         assert {p.name for p in ticket_dir.iterdir()} == {"data.csv"}
         with (ticket_dir / "data.csv").open() as handle:
             rows = list(csv.DictReader(handle))
-        assert len(rows) == 432
+        assert len(rows) == 1296  # seven history days + 48h forecast
         assert all(r["turbine_id"] == "B" for r in rows)
         # A fixture reply verifies transport only; it is not a real ML prediction.
         raw = b'{"custom_worker_field": [1, 2, 3], "unit": "MWh", "nested": {"x": true}}'

@@ -23,6 +23,11 @@ class TicketRequest(BaseModel):
         """Model horizon is fixed. The frontend selects its display window."""
         return 48
 
+    @property
+    def context_days(self) -> int:
+        """Keep frontend request schema, ensure at least the model's 7 days."""
+        return max(7, self.history_days)
+
     @field_validator("turbine_id", mode="before")
     @classmethod
     def normalize_turbine(cls, value):
@@ -52,6 +57,6 @@ class TicketRequest(BaseModel):
         return value.astimezone(UTC)
 
     def timestamps(self, site_timezone: ZoneInfo, sampling_step: int) -> list[datetime]:
-        start = self.start_utc(site_timezone) - timedelta(days=self.history_days)
-        count = (self.history_days * 24 + self.horizon_hours) * sampling_step
+        start = self.start_utc(site_timezone) - timedelta(days=self.context_days)
+        count = (self.context_days * 24 + self.horizon_hours) * sampling_step
         return [start + timedelta(minutes=(60 // sampling_step) * i) for i in range(count)]

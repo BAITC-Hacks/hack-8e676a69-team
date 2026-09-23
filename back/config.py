@@ -50,6 +50,10 @@ class Settings:
     max_active_tickets: int = 32
     use_dataset_for_horizon: bool = True
     sampling_step: int = 6
+    inference_enabled: bool = True
+    inference_model_dir: Path = PROJECT_ROOT / 'inference' / 'models'
+    inference_workers: int = 2
+    inference_threads: int = 1
     cors_origins: tuple[str, ...] = ("*",)
 
     @property
@@ -78,11 +82,17 @@ class Settings:
             max_active_tickets=int(os.getenv("MAX_ACTIVE_TICKETS", "32")),
             use_dataset_for_horizon=os.getenv("USE_DATASET_FOR_HORIZON", "true").lower() in {"1", "true", "yes"},
             sampling_step=int(os.getenv("ML_STEP", "6")),
+            inference_enabled=os.getenv('INFERENCE_ENABLED', 'true').lower() in {'1', 'true', 'yes'},
+            inference_model_dir=env_path('INFERENCE_MODEL_DIR', defaults.inference_model_dir),
+            inference_workers=int(os.getenv('INFERENCE_WORKERS', '2')),
+            inference_threads=int(os.getenv('INFERENCE_THREADS', '1')),
             cors_origins=tuple(x.strip() for x in os.getenv("CORS_ORIGINS", "*").split(",") if x.strip()),
         )
 
     def validate(self) -> None:
         self.timezone
+        if self.inference_workers < 1 or self.inference_threads < 1:
+            raise ValueError('Inference worker/thread counts must be positive')
         if not 1 <= self.sampling_step <= 60 or 60 % self.sampling_step:
             raise ValueError("ML_STEP must be a positive divisor of 60; 6 means one row every 10 minutes")
         if not 1 <= self.forecast_availability_margin_hours <= 24:

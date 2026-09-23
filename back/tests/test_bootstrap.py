@@ -23,7 +23,7 @@ def test_bootstrap_defaults_can_be_posted_directly_and_horizon_is_fixed(tmp_path
         async def weather_for(self, turbine, timestamps, **kwargs):
             return {t: WeatherValue(6, 3, "fixture") for t in timestamps}
 
-    settings = Settings(tickets_dir=tmp_path / "tickets", cache_dir=tmp_path / "cache", web_dist=tmp_path / "no-web", turbine_timezone="UTC", sampling_step=sampling_step)
+    settings = Settings(tickets_dir=tmp_path / "tickets", cache_dir=tmp_path / "cache", web_dist=tmp_path / "no-web", turbine_timezone="UTC", sampling_step=sampling_step, inference_enabled=False)
     with TestClient(create_app(settings, datasets=Datasets(), weather=Weather())) as client:
         response = client.get("/api/bootstrap")
         assert response.status_code == 200

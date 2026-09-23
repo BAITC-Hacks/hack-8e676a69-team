@@ -24,7 +24,7 @@ echo "==> building frontend"
 cd frontend && npm ci && npm run build && cd ..
 
 echo "==> restarting services"
-# The ML teammate runs a separate worker watching /data/app/tickets.
+# The backend starts its embedded CatBoost ticket worker unless INFERENCE_ENABLED=false.
 sudo install -m 644 back/deploy/hackalem.service /etc/systemd/system/hackalem.service
 sudo systemctl daemon-reload
 sudo systemctl restart hackalem

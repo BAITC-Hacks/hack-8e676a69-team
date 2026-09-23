@@ -5,11 +5,18 @@ Team: Порнофильмы. Selected track: Энергетика.
 ```text
 frontend/  Vue frontend
 back/      FastAPI, dependencies, configuration, tests, data, and deployment
-ml/        prediction worker
+inference/ bundled CatBoost models and ticket worker (embedded by default)
+ml/        worker handoff documentation
 tickets/   shared data.csv → response.json exchange
 ```
 
 The backend always prepares a 48-hour prediction window. Frontend chooses which part to display and stores user request history. The ML teammate controls sampling through backend configuration.
+
+The backend now starts `inference/` automatically. The worker consumes each
+ticket's weather CSV and atomically writes the exact frontend `series` response,
+with 48 hourly normalized-power points. No power history is used. See the
+[inference setup and contract](inference/README.md). Both original turbine CSVs
+must still be supplied in `back/data/` or via `DATASETS_DIR`.
 
 ## Frontend API
 
@@ -74,7 +81,7 @@ The real turbine-A / February-5 example was checked against Open-Meteo: 30 histo
 
 ## Deployment
 
-Backend deployment files are in back/deploy/. The service uses back/.venv, reads back/.env, and listens on localhost:8000 behind Caddy. ML runs independently against the root tickets/ directory.
+Backend deployment files are in back/deploy/. The service uses back/.venv, reads back/.env, and listens on localhost:8000 behind Caddy. ML runs as an embedded ticket worker by default; a separate process is optional with INFERENCE_ENABLED=false.
 
 Planned frontend URL: [HackAlem demo](https://hackalem-pornofilms.polandcentral.cloudapp.azure.com). Deployment has not been verified by these local checks.
 
