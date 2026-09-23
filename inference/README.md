@@ -92,9 +92,11 @@ temperature is Celsius. The earliest `forecast` timestamp is origin `T`.
   timezone for model features**, preserving the source/site calendar. The
   original source timezone still needs confirmation; Asia/Almaty is provisional.
 
-Final models were trained through January 31, 2026. Origins before February 1
-are rejected (otherwise historical evaluation would leak training information).
-The pipeline does not silently use final models for January backtests.
+Final models were trained through January 31, 2026. Earlier origins are allowed
+for diagnostic/demo predictions, with a warning in the worker logs. They are
+not unbiased historical validation because the model has seen that period in
+training. The frontend JSON stays unchanged. After restarting the backend,
+submit a new ticket; already-written error responses are not overwritten.
 
 ## Exact success response
 

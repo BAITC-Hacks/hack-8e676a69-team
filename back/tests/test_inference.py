@@ -118,7 +118,7 @@ def test_excess_history_ignored_and_missing_hours_not_filled(tmp_path):
     assert after['history'].loc['2026-02-04 12:00'].isna().all()
 
 
-@pytest.mark.parametrize('problem', ['duplicate','missing_future','phase','naive','negative','mixed_turbines','before_training'])
+@pytest.mark.parametrize('problem', ['duplicate','missing_future','phase','naive','negative','mixed_turbines'])
 def test_bad_csv_is_rejected(problem,tmp_path):
     frame = pd.DataFrame(rows(config(tmp_path)))
     if problem == 'duplicate': frame = pd.concat([frame,frame.iloc[-1:]])
@@ -127,8 +127,18 @@ def test_bad_csv_is_rejected(problem,tmp_path):
     if problem == 'naive': frame['timestamp'] = frame.timestamp.str.replace('+05:00','',regex=False)
     if problem == 'negative': frame.loc[0,'wind_speed_ms'] = -1
     if problem == 'mixed_turbines': frame.loc[0,'turbine_id'] = 'B'
-    if problem == 'before_training': frame['timestamp'] = (pd.to_datetime(frame.timestamp)-pd.Timedelta(days=40)).map(lambda v:v.isoformat())
     with pytest.raises(ValueError): prepare_frame(frame,'Asia/Almaty')
+
+
+@pytest.mark.parametrize('turbine', ['A', 'B'])
+def test_dates_before_training_cutoff_are_allowed_as_diagnostics(tmp_path, caplog, turbine):
+    frame = pd.DataFrame(rows(config(tmp_path), turbine))
+    frame['timestamp'] = (pd.to_datetime(frame.timestamp)-pd.Timedelta(days=40)).map(lambda v:v.isoformat())
+    path = tmp_path/'historical.csv'
+    frame.to_csv(path,index=False)
+    response = ForecastPipeline().infer(path)
+    assert_response(response)
+    assert 'not an unbiased historical validation' in caplog.text
 
 
 def test_partial_files_claims_restart_and_atomic_response(tmp_path):

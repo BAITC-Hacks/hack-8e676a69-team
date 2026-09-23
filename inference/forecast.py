@@ -3,6 +3,7 @@ from pathlib import Path
 from zoneinfo import ZoneInfo
 import hashlib
 import json
+import logging
 import math
 
 import numpy as np
@@ -65,7 +66,9 @@ def prepare_frame(frame, timezone):
     # Model was trained in naive source/site clock, not naive UTC.
     naive_origin = origin.tz_localize(None)
     if naive_origin < pd.Timestamp('2026-02-01'):
-        raise ValueError('Origin precedes final model training cutoff 2026-02-01; historical validation needs evaluation models')
+        logging.getLogger(__name__).warning(
+            'Diagnostic forecast at %s uses a model trained through January 31, 2026; '
+            'this is not an unbiased historical validation.', naive_origin)
     selected = data.loc[data.index >= origin-pd.Timedelta(hours=CONTEXT)]
     if selected.index.tz_localize(None).has_duplicates:
         raise ValueError('Ambiguous repeated site-clock hour; this model does not support DST fold windows')
